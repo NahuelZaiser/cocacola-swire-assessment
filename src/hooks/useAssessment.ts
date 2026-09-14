@@ -300,11 +300,8 @@ export function useAssessment() {
     const current = sjtDatabase[stateRef.current.sjtIndex];
     const bestOpt = current.options.find((o) => o.id === stateRef.current.sjtBestChoice);
     const worstOpt = current.options.find((o) => o.id === stateRef.current.sjtWorstChoice);
-    const isCorrect = Boolean(bestOpt && worstOpt && bestOpt.isBest && worstOpt.isWorst);
-
-    let points = 0;
-    if (bestOpt && bestOpt.isBest) points += 50;
-    if (worstOpt && worstOpt.isWorst) points += 50;
+    const isCorrect = Boolean(bestOpt && worstOpt && bestOpt.id !== worstOpt.id && bestOpt.isBest && worstOpt.isWorst);
+    const points = isCorrect ? 100 : 0;
 
     appendAuditEntry({
       stage: 'sjt',
