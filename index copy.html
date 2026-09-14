@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Simulador Avanzado HireVue - Swire Coca-Cola</title>
+  <style>
+    :root {
+      --coca-red: #d9172d;
+      --coca-red-soft: #f7dfe3;
+      --coca-red-alt: #ff4e62;
+      --coca-dark: #9a1022;
+      --coca-black: #111827;
+      --text-main: #1d2430;
+      --text-muted: #5f6978;
+      --bg-page: #eef2f7;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --panel-soft: #f7f9fc;
+      --border-color: #e6ebf1;
+      --success: #1d9a62;
+      --success-bg: #e9f9f0;
+      --danger: #d92d3b;
+      --danger-bg: #ffe8eb;
+      --warning: #d79a00;
+      --warning-bg: #fff4d4;
+      --focus-ring: #0d6efd;
+      --shadow-soft: 0 18px 40px rgba(17, 17, 17, 0.07);
+      --shadow-card: 0 22px 48px rgba(17, 17, 17, 0.08);
+      --shadow-red: 0 16px 28px rgba(217, 23, 45, 0.18);
+      --glow-red: rgba(217, 23, 45, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(217, 23, 45, 0.17), transparent 26%),
+        radial-gradient(circle at top right, rgba(17, 17, 17, 0.05), transparent 30%),
+        linear-gradient(180deg, #f7f9fc 0%, #edf1f6 100%);
+      color: var(--text-main);
+      line-height: 1.45;
+      padding-bottom: 50px;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.32), transparent 52%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header HireVue Enterprise */
+    header {
+      background: rgba(255, 255, 255, 0.9);
+      border-bottom: 1px solid rgba(17,17,17,0.06);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 10px 24px rgba(17,17,17,0.05);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .brand-block {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-logo {
+      color: #fff;
+      font-weight: 900;
+      font-size: 1.2rem;
+      letter-spacing: -0.6px;
+      border-right: 2px solid rgba(255,255,255,0.3);
+      padding: 8px 12px 8px 10px;
+      background: linear-gradient(135deg, var(--coca-red), #ff3d4f);
+      border-radius: 10px;
+      box-shadow: 0 8px 18px rgba(230, 27, 43, 0.25);
+      text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+
+    .brand-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--coca-black);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-role {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .header-status {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timer-pill {
+      background: linear-gradient(180deg, #ffffff, #f3f6f8);
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: var(--coca-black);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(17,17,17,0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 8px 18px rgba(17,17,17,0.05);
+    }
+
+    .timer-pill.urgent {
+      background: linear-gradient(180deg, #fff3f5, #ffe9ee);
+      color: var(--danger);
+      border-color: rgba(217, 45, 59, 0.3);
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    /* Warning Banner (Anti-cheat) */
+    #antiCheatBanner {
+      display: none;
+      background: #dc3545;
+      color: white;
+      text-align: center;
+      padding: 10px 16px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      position: sticky;
+      top: 57px;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 860px;
+      margin: 24px auto;
+      padding: 0 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Card */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(249,251,252,0.96) 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(17,17,17,0.06);
+      border-top: 4px solid var(--coca-red);
+      padding: 24px 22px;
+      box-shadow: var(--shadow-card);
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 28px 58px rgba(17,17,17,0.09);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto auto 0;
+      width: 150px;
+      height: 150px;
+      background: radial-gradient(circle, rgba(217, 23, 45, 0.12), transparent 70%);
+      pointer-events: none;
+    }
+
+    h1 {
+      font-size: clamp(1.45rem, 2vw, 2.1rem);
+      color: var(--coca-black);
+      margin-bottom: 10px;
+      font-weight: 900;
+      letter-spacing: -0.04em;
+    }
+
+    h2 {
+      font-size: clamp(1.1rem, 1.7vw, 1.45rem);
+      color: var(--coca-black);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #f1f3f5;
+      letter-spacing: -0.03em;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      margin: 14px 0 8px 0;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 0.94rem;
+      margin-bottom: 14px;
+    }
+
+    .badge-section {
+      display: inline-block;
+      background: linear-gradient(135deg, #ffe7ea, #fff1f3);
+      color: var(--coca-red);
+      font-size: 0.74rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 7px 12px;
+      border-radius: 999px;
+      margin-bottom: 12px;
+      border: 1px solid rgba(230, 27, 43, 0.1);
+      box-shadow: 0 6px 14px rgba(230, 27, 43, 0.08);
+    }
+
+    /* Buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      background: linear-gradient(135deg, var(--coca-red) 0%, var(--coca-red-alt) 46%, var(--coca-dark) 100%);
+      color: white;
+      font-size: 1rem;
+      font-weight: 800;
+      border: 1px solid rgba(154, 16, 34, 0.25);
+      padding: 16px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 14px 28px rgba(217, 23, 45, 0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+      letter-spacing: 0.01em;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: linear-gradient(135deg, var(--coca-dark) 0%, #ea2b43 52%, var(--coca-red) 100%);
+      transform: translateY(-2px) scale(1.003);
+      box-shadow: 0 18px 30px rgba(154, 16, 34, 0.24), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid rgba(13, 110, 253, 0.28);
+      outline-offset: 2px;
+    }
+
+    .btn:disabled {
+      background: linear-gradient(135deg, #d1d5db, #b7bec8);
+      border-color: #b7bec8;
+      cursor: not-allowed;
+      box-shadow: none;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .btn-secondary {
+      background: #edf0f4;
+      color: #1f2937;
+      border-color: rgba(31,41,55,0.08);
+      box-shadow: none;
+    }
+
+    /* Overlay de Tiempo Agotado */
+    #timeoutOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 2000;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .timeout-modal {
+      background: white;
+      color: #222;
+      padding: 28px 24px;
+      border-radius: 16px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    /* =======================================================
+       FASE 1: SJT (MEJOR Y PEOR ACCIÓN)
+       ======================================================= */
+    .sjt-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+    }
+
+    .sjt-table th {
+      background: #f8f9fa;
+      padding: 10px 8px;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border-color);
+      text-align: center;
+    }
+
+    .sjt-table th.th-action {
+      text-align: left;
+      width: 60%;
+    }
+
+    .sjt-table td {
+      padding: 12px 8px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.88rem;
+      vertical-align: middle;
+    }
+
+    .sjt-table tr:hover {
+      background: #fafbfc;
+    }
+
+    .sjt-cell-btn {
+      text-align: center;
+      width: 20%;
+    }
+
+    .btn-choice {
+      border: 2px solid #d0d5dd;
+      background: white;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.15s ease;
+    }
+
+    .btn-choice.best-selected {
+      background: #198754;
+      color: white;
+      border-color: #198754;
+    }
+
+    .btn-choice.worst-selected {
+      background: #dc3545;
+      color: white;
+      border-color: #dc3545;
+    }
+
+    /* =======================================================
+       FASE 2: RAPID-FIRE CHECK FOR ERRORS (STREAM DINÁMICO)
+       ======================================================= */
+    .stream-container {
+      background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+      border: 1px solid rgba(17,17,17,0.06);
+      border-radius: 20px;
+      padding: 18px 14px;
+      margin: 16px 0;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 16px 32px rgba(17,17,17,0.04);
+      border-top: 3px solid rgba(217, 23, 45, 0.1);
+    }
+
+    .stream-progress-bar {
+      height: 8px;
+      background: #edf2f7;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(17,17,17,0.08);
+    }
+
+    .stream-progress-fill {
+      height: 100%;
+      background: var(--coca-red);
+      width: 0%;
+      transition: width 0.2s;
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 14px 0;
+      text-align: left;
+    }
+
+    @media (max-width: 520px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .box-spec {
+      background: linear-gradient(180deg, #ffffff, #fafbfc);
+      border: 1px solid rgba(17,17,17,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 18px rgba(17,17,17,0.03);
+    }
+
+    .box-spec-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-item {
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+    }
+
+    .spec-item strong {
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+
+    .stream-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .btn-match {
+      background: linear-gradient(135deg, #1f9d66, #27ae60);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 10px 18px rgba(25, 135, 84, 0.2);
+    }
+
+    .btn-mismatch {
+      background: linear-gradient(135deg, #e53935, #d81b60);
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 10px 18px rgba(220, 53, 69, 0.22);
+    }
+
+    .shortcut-hint {
+      font-size: 0.7rem;
+      opacity: 0.8;
+      font-weight: normal;
+    }
+
+    .stat-ribbon {
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    /* =======================================================
+       FASE 3: CHECK YOUR PALLET (ACCESIBLE CON ARIA)
+       ======================================================= */
+    .pallet-layout {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      background: linear-gradient(180deg, #f0f3f7, #e7edf3);
+      padding: 14px;
+      border-radius: 14px;
+      margin: 16px 0;
+      border: 1px solid rgba(17,17,17,0.05);
+    }
+
+    @media (max-width: 480px) {
+      .pallet-layout {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .pallet-btn {
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      border: 2px solid #dfe7ee;
+      border-radius: 14px;
+      padding: 12px 8px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      outline: none;
+      box-shadow: 0 10px 18px rgba(17,17,17,0.03), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .pallet-btn:hover {
+      transform: translateY(-2px);
+      border-color: #c7d1dc;
+      box-shadow: 0 14px 24px rgba(17,17,17,0.05);
+    }
+
+    .pallet-btn:focus-visible {
+      border-color: var(--focus-ring);
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+    }
+
+    .pallet-btn.selected-hazard {
+      background: linear-gradient(180deg, #fff2f4, #ffe7eb);
+      border-color: var(--danger);
+      color: var(--danger);
+      font-weight: 800;
+      box-shadow: 0 14px 28px rgba(217, 23, 45, 0.1);
+    }
+
+    /* =======================================================
+       FASE 4 Y 5: HISTORIA & ENFOQUE
+       ======================================================= */
+    .option-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .opt-card {
+      border: 1.5px solid var(--border-color);
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.18s ease;
+      background: linear-gradient(180deg, #ffffff, #fbfcfd);
+      box-shadow: 0 12px 20px rgba(17,17,17,0.02);
+    }
+
+    .opt-card:hover {
+      background: #f7f9fb;
+      transform: translateY(-2px);
+      box-shadow: 0 14px 24px rgba(17,17,17,0.04);
+    }
+
+    .opt-card.active {
+      border-color: var(--coca-red);
+      background: linear-gradient(180deg, #fff7f7, #fff0f2);
+      box-shadow: 0 14px 28px rgba(217, 23, 45, 0.09);
+    }
+
+    .opt-card input {
+      accent-color: var(--coca-red);
+      width: 18px;
+      height: 18px;
+    }
+
+    .pair-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 16px 0;
+    }
+
+    @media (max-width: 540px) {
+      .pair-block {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pair-choice-btn {
+      border: 1.5px solid var(--border-color);
+      background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+      border-radius: 18px;
+      padding: 18px 14px;
+      font-size: 0.92rem;
+      line-height: 1.45;
+      text-align: center;
+      cursor: pointer;
+      min-height: 118px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.18s ease;
+      box-shadow: 0 12px 22px rgba(17,17,17,0.03);
+    }
+
+    .pair-choice-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 28px rgba(17,17,17,0.05);
+    }
+
+    .pair-choice-btn.selected {
+      border-color: var(--coca-red);
+      background: linear-gradient(180deg, #fff5f6, #fff4f4);
+      font-weight: 700;
+      color: var(--coca-red);
+      box-shadow: 0 16px 30px rgba(217, 23, 45, 0.08);
+    }
+
+    /* =======================================================
+       DASHBOARD FINAL CON MÉTRICAS RIGUROSAS
+       ======================================================= */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .kpi-card {
+      background: #f8f9fa;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .kpi-val {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--coca-red);
+    }
+
+    .kpi-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+      font-size: 0.88rem;
+    }
+
+    .meter-bg {
+      width: 120px;
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: var(--coca-red);
+    }
+
+    .alert-box {
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      margin: 10px 0;
+      line-height: 1.4;
+    }
+
+    .alert-success { background: var(--success-bg); color: #0f5132; border-left: 4px solid var(--success); }
+    .alert-warning { background: var(--warning-bg); color: #664d03; border-left: 4px solid var(--warning); }
+    .alert-danger { background: var(--danger-bg); color: #842029; border-left: 4px solid var(--danger); }
+
+    @media (max-width: 760px) {
+      .container {
+        max-width: 100%;
+        padding: 0 10px;
+      }
+
+      .card {
+        padding: 18px 14px;
+        border-radius: 16px;
+      }
+
+      header {
+        padding: 10px 12px;
+      }
+
+      .brand-logo {
+        font-size: 1.1rem;
+        padding-right: 8px;
+      }
+
+      .brand-title {
+        font-size: 0.75rem;
+      }
+
+      .brand-role {
+        font-size: 0.66rem;
+      }
+
+      .timer-pill {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .sjt-table th,
+      .sjt-table td {
+        font-size: 0.8rem;
+        padding: 10px 6px;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .metric-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }
+
+      .meter-bg {
+        width: min(180px, 100%);
+      }
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding-bottom: 32px;
+      }
+
+      .container {
+        margin: 12px auto;
+      }
+
+      .btn {
+        min-height: 52px;
+        padding: 14px 16px;
+      }
+
+      .stream-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .pair-block {
+        gap: 10px;
+      }
+
+      .pallet-btn {
+        min-height: 72px;
+      }
+
+      .stat-ribbon {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    @media (max-width: 390px) {
+      .brand-block {
+        gap: 8px;
+      }
+
+      .brand-logo {
+        border-right: none;
+        padding-right: 0;
+      }
+
+      .brand-title {
+        max-width: 110px;
+      }
+
+      .pair-choice-btn {
+        min-height: 90px;
+      }
+
+      .kpi-val {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-block">
+      <div class="brand-logo">Coca-Cola</div>
+      <div>
+        <div class="brand-title">Swire Coca-Cola</div>
+        <div class="brand-role">Merchandiser Assessment</div>
+      </div>
+    </div>
+    <div class="header-status">
+      <div class="timer-pill" id="globalTimerPill" style="display: none;">
+        <span>⏱️</span>
+        <span id="timerText">00:00</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Anti-Cheat Banner -->
+  <div id="antiCheatBanner" role="alert">
+    ⚠️ ALERTA DE SISTEMA: Se detectó pérdida de foco en la ventana de evaluación. HireVue penaliza las salidas de pantalla.
+  </div>
+
+  <!-- Timeout Overlay (Auto-transition) -->
+  <div id="timeoutOverlay">
+    <div class="timeout-modal">
+      <h2 style="color: var(--danger); border: none;">⏳ Tiempo Agotado</h2>
+      <p style="margin: 12px 0;">El tiempo asignado para esta fase ha expirado. Tus respuestas completadas hasta el momento han sido guardadas.</p>
+      <p style="font-size: 0.82rem; color: #888;">Cargando la siguiente fase automáticamente...</p>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <!-- PANTALLA INTRO -->
+    <section id="screenIntro" class="card">
+      <span class="badge-section">Simulación de Nivel Corporativo</span>
+      <h1>Evaluación Técnica y de Perfil para Reposición</h1>
+      <p>Bienvenida al entorno de práctica idéntico al sistema <strong>HireVue de Swire Coca-Cola</strong>. Esta herramienta contiene bancos de datos dinámicos, penalización por errores y algoritmos de control de tiempo real.</p>
+      
+      <div style="background: #f8f9fa; border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 0.86rem;">
+        <p style="margin-bottom: 8px;"><strong>Estructura de la Evaluación:</strong></p>
+        <ul style="padding-left: 18px; line-height: 1.6; color: #444;">
+          <li><strong>1. Escenarios Situacionales (SJT):</strong> Formato estándar HireVue: clasificar la <em>Mejor</em> y <em>Peor</em> acción por situación (~4 min).</li>
+          <li><strong>2. Check for Errors:</strong> Comparación rápida contra reloj de Facturas vs. Carga física. Penalización por falsos positivos (2 min fijos).</li>
+          <li><strong>3. Check Your Pallet:</strong> Auditoría visual de seguridad y mermas en pallet bodega (2 min fijos).</li>
+          <li><strong>4. Tell Us Your Story:</strong> Hábitos, autonomía en ruta y confiabilidad (~6 min).</li>
+          <li><strong>5. Describe Your Approach:</strong> Test ipsativo de personalidad laboral (~14 min).</li>
+        </ul>
+      </div>
+
+      <p style="font-size: 0.82rem; color: #666;">* Regla estricta: Mantente dentro de esta ventana durante toda la prueba para evitar penalizaciones por desconexión en el informe final.</p>
+      <button class="btn" onclick="startAssessment()">Iniciar Evaluación Oficial</button>
+    </section>
+
+    <!-- FASE 1: SJT (MEJOR Y PEOR ACCIÓN) -->
+    <section id="screenSjt" class="card" style="display: none;">
+      <span class="badge-section">Fase 1: Escenarios en Tienda</span>
+      <h2 id="sjtTitle">Escenario</h2>
+      <p id="sjtScenarioText" style="font-size: 1rem; color: #111; font-weight: 500; margin: 12px 0;"></p>
+      <p style="font-size: 0.84rem; color: var(--coca-red); font-weight: 600;">
+        Debes seleccionar exactamente UNA opción como la <strong>Mejor</strong> acción y UNA opción como la <strong>Peor</strong> acción.
+      </p>
+
+      <table class="sjt-table" role="table">
+        <thead>
+          <tr>
+            <th class="th-action">Acción Propuesta</th>
+            <th>Mejor</th>
+            <th>Peor</th>
+          </tr>
+        </thead>
+        <tbody id="sjtTableBody"></tbody>
+      </table>
+
+      <button class="btn" id="sjtNextBtn" onclick="nextSjt()" disabled>Confirmar Decisiones</button>
+    </section>
+
+    <!-- FASE 2: CHECK FOR ERRORS (STREAM RAPID-FIRE) -->
+    <section id="screenErrors" class="card" style="display: none;">
+      <span class="badge-section">Fase 2: Control de Errores (2:00 min)</span>
+      <h2>Comparación Rápida de Inventario</h2>
+      <p>Compara la <strong>Factura / Documento</strong> con el <strong>Físico Recibido</strong>. Indica de inmediato si ambos coinciden exactamente o si detectas una discrepancia (SKU, cantidad o lote).</p>
+
+      <div class="stream-container">
+        <div class="stream-progress-bar">
+          <div id="errorProgressFill" class="stream-progress-fill"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; color: #666; margin-bottom: 8px;">
+          <span id="errorItemCounter">Ítem 1 de 30</span>
+          <span>Tiempo Restante: <span id="errorMiniTimer" style="color: var(--danger);">02:00</span></span>
+        </div>
+
+        <div class="comparison-grid">
+          <div class="box-spec">
+            <div class="box-spec-title">Factura Oficial (Orden)</div>
+            <div class="spec-item">SKU: <strong id="specInvSku">---</strong></div>
+            <div class="spec-item">Desc: <span id="specInvDesc">---</span></div>
+            <div class="spec-item">Cant: <strong id="specInvQty">---</strong></div>
+            <div class="spec-item">Lote: <span id="specInvLot">---</span></div>
+          </div>
+          <div class="box-spec">
+            <div class="box-spec-title">Carga Física Descargada</div>
+            <div class="spec-item">SKU: <strong id="specPhysSku">---</strong></div>
+            <div class="spec-item">Desc: <span id="specPhysDesc">---</span></div>
+            <div class="spec-item">Cant: <strong id="specPhysQty">---</strong></div>
+            <div class="spec-item">Lote: <span id="specPhysLot">---</span></div>
+          </div>
+        </div>
+
+        <div class="stream-controls">
+          <button class="btn-match" onclick="submitErrorChoice(true)" aria-label="Confirmar que coinciden exactamente">
+            <span>✓ COINCIDEN</span>
+            <span class="shortcut-hint">(Tecla [←] Flecha Izq)</span>
+          </button>
+          <button class="btn-mismatch" onclick="submitErrorChoice(false)" aria-label="Marcar que hay un error o discrepancia">
+            <span>✗ DISCREPANCIA</span>
+            <span class="shortcut-hint">(Tecla [→] Flecha Der)</span>
+          </button>
+        </div>
+
+        <div class="stat-ribbon">
+          <span>Procesados: <span id="statProcessed">0</span></span>
+          <span>Aciertos: <span id="statHits" style="color: var(--success);">0</span></span>
+          <span>Penalizaciones: <span id="statFalse" style="color: var(--danger);">0</span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FASE 3: CHECK YOUR PALLET (GRID ACCESIBLE) -->
+    <section id="screenPallet" class="card" style="display: none;">
+      <span class="badge-section">Fase 3: Inspección de Pallet (2:00 min)</span>
+      <h2>Auditoría de Seguridad y Calidad en Bodega</h2>
+      <p>Estás recibiendo una estiba en el almacén del supermercado. Identifica y pulsa <strong>únicamente las cajas o secciones con anomalías críticas</strong> (roturas, riesgo de colapso por peso o vencimiento). <em>Hacer clic en cajas correctas restará puntos.</em></p>
+
+      <div class="pallet-layout" id="palletLayout" role="region" aria-label="Distribución de cajas en el pallet"></div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+        <span style="font-size: 0.85rem; font-weight: 700;">Anomalías marcadas: <span id="palletSelectedCount">0</span></span>
+        <button class="btn" style="width: auto; padding: 10px 24px;" onclick="finishPalletManual()">Completar Auditoría</button>
+      </div>
+    </section>
+
+    <!-- FASE 4: HISTORIA Y ÉTICA -->
+    <section id="screenStory" class="card" style="display: none;">
+      <span class="badge-section">Fase 4: Tell Us Your Story</span>
+      <h2 id="storyCounter">Pregunta 1</h2>
+      <p id="storyQuestionText" style="font-size: 1rem; color: #111; font-weight: 500;"></p>
+      
+      <div class="option-list" id="storyOptionList" role="radiogroup"></div>
+      <button class="btn" id="storyNextBtn" onclick="nextStory()" disabled>Siguiente</button>
+    </section>
+
+    <!-- FASE 5: ENFOQUE Y PERSONALIDAD -->
+    <section id="screenApproach" class="card" style="display: none;">
+      <span class="badge-section">Fase 5: Describe Your Approach</span>
+      <h2>Preferencia de Trabajo</h2>
+      <p>Selecciona cuál de las siguientes dos afirmaciones describe con <strong>mayor fidelidad</strong> tu forma natural de operar en el trabajo:</p>
+
+      <div class="pair-block">
+        <button class="pair-choice-btn" id="pairBtnA" onclick="selectApproachPair('A')"></button>
+        <button class="pair-choice-btn" id="pairBtnB" onclick="selectApproachPair('B')"></button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.82rem; color: #777;">
+        <span id="approachCounter">Par 1 de 6</span>
+        <button class="btn" id="approachConfirmBtn" style="width: auto; padding: 8px 20px;" onclick="confirmApproachPair()" disabled>Avanzar</button>
+      </div>
+    </section>
+
+    <!-- RESULTADOS Y FEEDBACK EXTENSO -->
+    <section id="screenResults" class="card" style="display: none;">
+      <span class="badge-section">Reporte de Auditoría HireVue</span>
+      <h1>Análisis de Rendimiento para Swire Coca-Cola</h1>
+      <p>Resultados consolidados de la evaluación de Jazmín según los algoritmos psicométricos de preselección para el rol de Reposición / Merchandiser.</p>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-val" id="finalScoreDisplay">0%</div>
+          <div class="kpi-lbl">Aptitud Global Ponderada</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-val" id="integrityDisplay">100%</div>
+          <div class="kpi-lbl">Índice de Foco e Integridad</div>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin: 12px 0 20px 0;">
+        <span id="statusBadge" style="font-size: 0.95rem; font-weight: 800; padding: 6px 18px; border-radius: 20px; display: inline-block;">---</span>
+      </div>
+
+      <h3>Desglose Detallado por Competencia</h3>
+      
+      <div class="metric-line">
+        <div>
+          <strong>Juicio Situacional en Tienda (SJT)</strong>
+          <div style="font-size: 0.76rem; color: #666;">Selección de mejor y peor respuesta ante clientes y conflictos</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="meter-bg"><div id="meterSjt" class="meter-fill" style="width: 0%;"></div></div>
+          <span id="txtSjt" style="font-weight: 700; width: 34px;">0%</span>
+        </div>
+      </div>
+
+      <div class="metric-line">
+        <div>
+          <strong>Agudeza Visual y Control de Errores</strong>
+          <div style="font-size: 0.76rem; color: #666;">Precisión neta en cotejo de inventario bajo presión</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="meter-bg"><div id="meterErrors" class="meter-fill" style="width: 0%;"></div></div>
+          <span id="txtErrors" style="font-weight: 700; width: 34px;">0%</span>
+        </div>
+      </div>
+
+      <div class="metric-line">
+        <div>
+          <strong>Auditoría de Estibas / Pallets</strong>
+          <div style="font-size: 0.76rem; color: #666;">Detección de mermas, riesgos de aplastamiento y FIFO</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="meter-bg"><div id="meterPallet" class="meter-fill" style="width: 0%;"></div></div>
+          <span id="txtPallet" style="font-weight: 700; width: 34px;">0%</span>
+        </div>
+      </div>
+
+      <div class="metric-line">
+        <div>
+          <strong>Cultura de Seguridad (Safety-First)</strong>
+          <div style="font-size: 0.76rem; color: #666;">Prioridad a la ergonomía, posturas y no tomar atajos</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="meter-bg"><div id="meterSafety" class="meter-fill" style="width: 0%;"></div></div>
+          <span id="txtSafety" style="font-weight: 700; width: 34px;">0%</span>
+        </div>
+      </div>
+
+      <div class="metric-line">
+        <div>
+          <strong>Autonomía en Ruta</strong>
+          <div style="font-size: 0.76rem; color: #666;">Alineamiento con trabajo solitario y automotivación</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="meter-bg"><div id="meterAutonomy" class="meter-fill" style="width: 0%;"></div></div>
+          <span id="txtAutonomy" style="font-weight: 700; width: 34px;">0%</span>
+        </div>
+      </div>
+
+      <h3 style="margin-top: 22px;">Diagnóstico Cualitativo y Recomendaciones Clave</h3>
+      <div id="qualitativeReport"></div>
+
+      <button class="btn" style="margin-top: 18px;" onclick="restartTest()">Reiniciar Simulación Completa</button>
+    </section>
+
+  </main>
+
+  <script>
+    /* =========================================================
+       1. BANCO DE DATOS ROBUSTO Y RANDOMIZADO
+       ========================================================= */
+
+    // FASE 1: SJT (Escenarios avanzados con dilemas de alta presión)
+    const masterSjtBank = [
+      {
+        scenario: "El gerente de la tienda te aborda alterado porque recibirá una inspección de sus directivos en 20 minutos. Te exige que pongas en exhibición tres pallets de bebidas que acaban de llegar al muelle, sin esperar a revisarlos ni registrar la entrada en el sistema, prometiendo que 'él firma la recepción después'.",
+        options: [
+          { id: 1, text: "Explicas con firmeza y amabilidad que el protocolo de Swire exige cotejar el albarán antes de liberar producto para evitar discrepancias de inventario, pero ofreces inspeccionar a máxima prioridad las marcas líderes que irán al frente de la tienda.", isBest: true, isWorst: false },
+          { id: 2, text: "Aceptas la orden del gerente inmediatamente y vuelcas el producto a la sala de ventas sin revisar, para evitar que se moleste con la compañía.", isBest: false, isWorst: true },
+          { id: 3, text: "Pides que te dé 5 minutos para revisar la carga mientras el gerente firma de forma verbal, confiando en la memoria del día.", isBest: false, isWorst: false },
+          { id: 4, text: "No dices nada y comienzas a mover cajas, porque la prioridad es cumplir el cierre del turno en la tienda.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Al retirar la envoltura plástica de un pallet mixto, una botella de vidrio de Topo Chico en el nivel medio estalla por presión acumulada, cortándote levemente un guante y dejando cristales y líquido mezclados con cajas de cartón inferiores.",
+        options: [
+          { id: 1, text: "Suspende de inmediato la manipulación, bloqueas el acceso del pallet con señalética, revisas tu mano para asegurar que no haya lesión cutánea, reportas el incidente al supervisor y limpias los vidrios con pala y escoba antes de evaluar las cajas mojadas.", isBest: true, isWorst: false },
+          { id: 2, text: "Sacudes rápidamente las cajas para tirar los cristales al piso del depósito y continúas la descarga manual para no perder el turno asignado.", isBest: false, isWorst: true },
+          { id: 3, text: "Te escondes detrás del pallet y esperas a que alguien más se haga cargo de la limpieza.", isBest: false, isWorst: false },
+          { id: 4, text: "Dejas la botella rota y sigues enviando cajas porque el daño ya ocurrió y no lo puedes revertir.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Al acomodar Coca-Cola Original 2L, notas que la góndola tiene producto con fecha de vencimiento a 60 días, el pallet que trajiste tiene producto con fecha a 90 días, pero en el fondo del depósito de la tienda encuentras dos cajas olvidadas con fecha a 15 días.",
+        options: [
+          { id: 1, text: "Sacas el producto de 15 días, lo colocas en el frente de la góndola, dejas el de 60 días detrás y el de 90 días en reserva, y avisas al encargado de sección sobre el lote corto para monitorear su salida.", isBest: true, isWorst: false },
+          { id: 2, text: "Dejas las cajas de 15 días en el depósito para que el personal de la tienda decida qué hacer con ellas y llenas la góndola únicamente con el producto nuevo del pallet.", isBest: false, isWorst: true },
+          { id: 3, text: "Colocas las cajas viejas detrás de las nuevas para que la góndola parezca más abastecida.", isBest: false, isWorst: false },
+          { id: 4, text: "Retiras todo el producto para no correr riesgo de vender un lote vencido.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "La rampa de ingreso a la bodega tiene una inclinación pronunciada. Para evitar hacer tres viajes con la carretilla manual bajo la lluvia, el chofer del camión te sugiere subir toda la carga pesada en un solo viaje empujando entre los dos.",
+        options: [
+          { id: 1, text: "Rechazas la sugerencia, realizas los viajes fraccionados respetando el límite de carga por viaje y utilizas el calzado antideslizante con paso firme.", isBest: true, isWorst: false },
+          { id: 2, text: "Aceptas la ayuda del chofer para subir la carretilla sobrecargada entre ambos con fuerza física, porque el tiempo es la mayor prioridad.", isBest: false, isWorst: true },
+          { id: 3, text: "Preguntas si hay otra ruta menos inclinada y esperas a que el almacén te asigne otra carretilla.", isBest: false, isWorst: false },
+          { id: 4, text: "Empujas a máxima velocidad para no retrasar el reparto aunque el piso esté mojado.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Estás reponiendo botellas familiares en el pasillo principal. Un cliente apurado tropieza accidentalmente con tu carretilla y se queja en voz alta de que estás estorbando el paso de mala manera.",
+        options: [
+          { id: 1, text: "Le pides disculpas cortésmente por el inconveniente, mueves de inmediato la carretilla pegada a la góndola dejando el pasillo despejado y continúas con serenidad.", isBest: true, isWorst: false },
+          { id: 2, text: "Le señalas al cliente que la carretilla estaba visible y que debería caminar prestando más atención por su propia seguridad.", isBest: false, isWorst: true },
+          { id: 3, text: "Ignoras el comentario por completo, no haces contacto visual y sigues apilando botellas como si nada hubiera pasado.", isBest: false, isWorst: false },
+          { id: 4, text: "Dejas tu carretilla en el pasillo y vas a buscar al gerente de la tienda para quejarte de la actitud del cliente.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Llegas a tu segunda tienda y encuentras que la exhibición de cabecera que armaste ayer fue desarmada por el encargado del supermercado para poner producto de otra marca competidora.",
+        options: [
+          { id: 1, text: "Confrontas de inmediato al encargado exigiéndole que vuelva a poner los productos de Coca-Cola porque ese espacio está pagado por contrato.", isBest: false, isWorst: true },
+          { id: 2, text: "Desarmas silenciosamente la exhibición de la competencia y vuelves a colocar las bebidas de Coca-Cola en su lugar original.", isBest: false, isWorst: false },
+          { id: 3, text: "Hablas calmadamente con el encargado para comprender el motivo del cambio, tomas fotografías de la cabecera y notificas de inmediato a tu supervisor de Swire con la evidencia.", isBest: true, isWorst: false },
+          { id: 4, text: "No dices nada, dejas el producto en el piso del depósito y te vas a tu siguiente tienda asignada en la ruta.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Estás retrasada 30 minutos respecto a tu itinerario diario. Para ganar tiempo, te das cuenta de que podrías cargar 4 cajas pesadas a la vez en lugar de las 2 recomendadas por el protocolo ergonómico.",
+        options: [
+          { id: 1, text: "Cargas las 4 cajas a la vez solo durante esta tienda para recuperar el tiempo perdido y luego vuelves a la técnica normal.", isBest: false, isWorst: true },
+          { id: 2, text: "Mantienes el levantamiento seguro de a 2 cajas utilizando las piernas, optimizas el orden de descarga y avisas a tu supervisor que tu ruta lleva un leve retraso justificado.", isBest: true, isWorst: false },
+          { id: 3, text: "Le pides a un cliente del supermercado que te ayude a cargar dos cajas para terminar más rápido.", isBest: false, isWorst: false },
+          { id: 4, text: "Decides reponer solo la mitad de las bebidas en góndola para marcharte a tiempo a la próxima parada.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Durante la reposición, una caja de vidrio se cae de la parte superior del pallet y un cliente se acerca curioso para ver qué pasó. Te pide que le des una botella antes de que el carrito se mueva.",
+        options: [
+          { id: 1, text: "Aplicas protocolo: se retira el producto dañado, te aseguras de que nadie se haga daño, reubicas la zona y explicas con cortesía que no se puede abrir ni entregar producto del pallet dañado.", isBest: true, isWorst: false },
+          { id: 2, text: "Entregas una botella para evitar conflicto con el cliente, sin verificar qué producto es ni si está en condiciones.", isBest: false, isWorst: true },
+          { id: 3, text: "Pides que se aleje, sin explicar la política ni evaluar la caja rota.", isBest: false, isWorst: false },
+          { id: 4, text: "Vuelves a guardar la caja y sigues sin reportar el incidente porque ya se resolvió.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Al ubicar tu pallet en el depósito del supermercado, el único espacio despejado está justo delante del gabinete de mangueras contra incendios.",
+        options: [
+          { id: 1, text: "Dejar el pallet allí temporalmente asegurando que lo moverás apenas termines de vaciar la mitad de las cajas.", isBest: false, isWorst: true },
+          { id: 2, text: "Despejar un área segura en la bodega moviendo pallets vacíos o consultar al jefe de patio dónde reubicar la carga sin obstruir salidas ni equipos contra incendios.", isBest: true, isWorst: false },
+          { id: 3, text: "Apilar las cajas directamente en el suelo del pasillo de acceso peatonal para no tapar la manguera.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Un paquete de 12 latas de Coca-Cola Zero tiene el plástico termoencogible desgarrado a la mitad, pero las latas no tienen golpes, fugas ni suciedad.",
+        options: [
+          { id: 1, text: "Ponerlo a la venta en góndola con el lado roto hacia atrás para que no se note.", isBest: false, isWorst: true },
+          { id: 2, text: "Romper el plástico por completo y colocar las 12 latas sueltas en la bandeja de unidades individuales de la heladera.", isBest: false, isWorst: false },
+          { id: 3, text: "Retirar el paquete, separarlo en el área de merma/reempaque de Swire y notificar la unidad para su correcta regularización.", isBest: true, isWorst: false }
+        ]
+      },
+      {
+        scenario: "El operador del montacargas de la tienda baja un pallet de botellas de 2L al que se le rompió el plástico protector superior y te pide que lo recibas así para no demorarse.",
+        options: [
+          { id: 1, text: "Aceptar la carga para no tener roces con el personal de la tienda y sostener las cajas con las manos mientras te mueves.", isBest: false, isWorst: false },
+          { id: 2, text: "Negarte a recibir el pallet en esas condiciones hasta que sea reasegurado con film plástico o bajado a piso de forma estable.", isBest: true, isWorst: false },
+          { id: 3, text: "Subirte a una escalera para acomodar las cajas sueltas mientras el montacargas sigue en movimiento.", isBest: false, isWorst: true }
+        ]
+      },
+      {
+        scenario: "Al retirar las botellas viejas para rotar el producto, notas que la base metálica del estante tiene restos pegajosos secos de un refresco roto hace días.",
+        options: [
+          { id: 1, text: "Colocar el cartón de las cajas nuevas sobre la mancha y acomodar las botellas encima.", isBest: false, isWorst: true },
+          { id: 2, text: "Limpiar la bandeja con un paño y sanitizante antes de colocar el producto rotado.", isBest: true, isWorst: false },
+          { id: 3, text: "Llenar la góndola normalmente ya que la suciedad quedó debajo de las botellas y nadie la verá.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Mientras repones latas en el pasillo, un cliente te exige que abras con tu cúter un paquete cerrado de 24 latas porque solo quiere comprar 2 unidades.",
+        options: [
+          { id: 1, text: "Abrir el paquete con el cúter para complacer al cliente y evitar que se enoje.", isBest: false, isWorst: true },
+          { id: 2, text: "Explicarle cordialmente que ese SKU se vende exclusivamente como unidad sellada y acompañarlo al sector de latas individuales.", isBest: true, isWorst: false },
+          { id: 3, text: "Ignorarlo y decirle secamente que tú no trabajas para el supermercado.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Al llegar a tu última parada del día, descubres que tienes en la carretilla 3 cajas de Powerade que pertenecían a la tienda anterior y olvidaste descargar.",
+        options: [
+          { id: 1, text: "Dejarlas en la tienda actual como 'mercancía extra' para no tener que regresar.", isBest: false, isWorst: false },
+          { id: 2, text: "Comunicarte con tu supervisor de ruta, registrar el error y acordar si regresas a entregarlas o se reasignan en el sistema.", isBest: true, isWorst: false },
+          { id: 3, text: "Guardar las cajas en tu vehículo personal para entregarlas al día siguiente sin avisar a nadie.", isBest: false, isWorst: true }
+        ]
+      },
+      {
+        scenario: "Está lloviendo intensamente y el área de descarga no tiene techo. Las cajas de cartón de latas corren riesgo de mojarse y desfondarse en el trayecto de la rampa.",
+        options: [
+          { id: 1, text: "Cubrir la carretilla con un plástico protector, reducir la cantidad de cajas por viaje para mayor control y avanzar a paso seguro con calzado antideslizante.", isBest: true, isWorst: false },
+          { id: 2, text: "Correr por la rampa cargando 5 cajas a la vez para reducir el tiempo bajo la lluvia.", isBest: false, isWorst: true },
+          { id: 3, text: "Suspender el trabajo, quedarte en el vehículo y omitir la tienda sin reportarlo a despacho.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Tu teléfono móvil o terminal de registro pierde señal y la aplicación de Swire se congela al ingresar a una tienda con depósito subterráneo.",
+        options: [
+          { id: 1, text: "Salir a la superficie a un lugar con señal, reiniciar la app para registrar la entrada y continuar el trabajo anotando físicamente cualquier cambio en caso de reconexión tardía.", isBest: true, isWorst: false },
+          { id: 2, text: "Marcharte a la siguiente tienda porque 'sin sistema no se puede trabajar'.", isBest: false, isWorst: true },
+          { id: 3, text: "Esperar en el depósito sentado sin hacer nada hasta que la señal vuelva por sí sola.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Un repositor de otra zona te llama por teléfono pidiéndote que cubras dos de sus supermercados porque 'se siente cansado y se quiere ir temprano', ofreciéndote invitarte a almorzar después.",
+        options: [
+          { id: 1, text: "Aceptar para ser buena compañera y apresurarte en tus propias tiendas.", isBest: false, isWorst: true },
+          { id: 2, text: "Explicarle con respeto que no puedes alterar tu ruta asignada sin la aprobación directa del supervisor y sugerirle que reporte su estado al centro de despacho.", isBest: true, isWorst: false },
+          { id: 3, text: "Decirle que sí, pero no ir a ninguna de sus tiendas.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Al colocar las botellas de 3L en el estante intermedio de la góndola, notas que la chapa metálica se flecta hacia abajo y los enganches laterales crujen.",
+        options: [
+          { id: 1, text: "Seguir llenando el estante hasta el fondo para que el peso se distribuya solo.", isBest: false, isWorst: true },
+          { id: 2, text: "Retirar inmediatamente el exceso de producto, reubicar las botellas pesadas en el nivel base del suelo y avisar al jefe de piso de la tienda sobre el estante dañado.", isBest: true, isWorst: false },
+          { id: 3, text: "Poner una caja de cartón debajo del estante como soporte improvisado.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Una botella de vidrio resbala de la góndola y se revienta en el suelo del pasillo principal mientras varias familias hacen sus compras.",
+        options: [
+          { id: 1, text: "Quedarte custodiando el área, advertir a las personas que no se acerquen, solicitar apoyo de limpieza de la tienda y usar escoba y pala para retirar los cristales.", isBest: true, isWorst: false },
+          { id: 2, text: "Ir al cuarto de limpieza a buscar un trapeador, dejando el vidrio roto solo en el pasillo.", isBest: false, isWorst: false },
+          { id: 3, text: "Empujar los vidrios con el zapato debajo de la góndola para que no estorben el paso.", isBest: false, isWorst: true }
+        ]
+      },
+      {
+        scenario: "El encargado de bodega del supermercado te acusa agresivamente de haber reventado una caja de latas que tú encontraste aplastada desde que llegaste.",
+        options: [
+          { id: 1, text: "Gritarle y exigirle que revise las cámaras de seguridad para que aprenda a respetar.", isBest: false, isWorst: true },
+          { id: 2, text: "Mantener el tono calmo, explicarle que el daño venía de origen, mostrarle las fotos de recepción tomadas al inicio y ofrecerte a procesar la boleta de merma según el protocolo.", isBest: true, isWorst: false },
+          { id: 3, text: "Asumir la culpa y pagar la caja de tu propio bolsillo para no tener problemas.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Llegas a colocar una edición limitada navideña, pero el cajero de prueba te informa que el código no pasa por el escáner del supermercado.",
+        options: [
+          { id: 1, text: "Colocar todo el producto en góndola de todos modos para que la gente lo tome.", isBest: false, isWorst: false },
+          { id: 2, text: "Guardar el producto en bodega, avisar al encargado de recepción para que den de alta el SKU en el sistema y notificar a tu supervisor comercial de Swire.", isBest: true, isWorst: false },
+          { id: 3, text: "Cambiar las etiquetas pegando encima códigos de barras de Coca-Cola Original regular.", isBest: false, isWorst: true }
+        ]
+      },
+      {
+        scenario: "Terminas de abrir las cajas en un pasillo concurrido y te das cuenta de que no tienes tu cuchilla retráctil (cúter) en el cinturón de herramientas.",
+        options: [
+          { id: 1, text: "Seguir trabajando y asumir que aparecerá al barrer al final del turno.", isBest: false, isWorst: true },
+          { id: 2, text: "Detener la reposición de inmediato y rastrear paso a paso las cajas y estantes donde estuviste manipulando hasta encontrarla y asegurarla.", isBest: true, isWorst: false },
+          { id: 3, text: "Tomar otro cúter nuevo de la camioneta sin buscar el anterior.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "La puntera de góndola contratada por Coca-Cola está bloqueada por tarimas de madera vacías dejadas por los empleados nocturnos del supermercado.",
+        options: [
+          { id: 1, text: "No colocar el producto y poner en el reporte que la tienda no tenía espacio.", isBest: false, isWorst: false },
+          { id: 2, text: "Solicitar cordialmente al jefe de pasillo que autorice el traslado de las tarimas al área de acopio y, con su visto bueno, despejar el espacio para montar la exhibición.", isBest: true, isWorst: false },
+          { id: 3, text: "Arrastrar con rabia las tarimas al medio del pasillo para que los clientes se quejen con la tienda.", isBest: false, isWorst: true }
+        ]
+      },
+      {
+        scenario: "Suena la alarma de incendios del supermercado mientras estás a mitad de la descarga de un pallet en la bodega.",
+        options: [
+          { id: 1, text: "Seguir trabajando porque probablemente sea solo un simulacro y tienes el tiempo justo de ruta.", isBest: false, isWorst: true },
+          { id: 2, text: "Detener la tarea de inmediato, dejar la carretilla pegada a la pared sin obstruir pasos de salida y dirigirte con calma hacia el punto de encuentro exterior.", isBest: true, isWorst: false },
+          { id: 3, text: "Intentar sacar tus cosas y la carretilla hacia el estacionamiento antes de salir.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "El camión entregó 20 cajas de Sprite, pero en góndola solo entran 8 botellas tras realizar la correcta rotación FIFO.",
+        options: [
+          { id: 1, text: "Forzar las botellas en huecos de otras marcas para que no sobre nada.", isBest: false, isWorst: true },
+          { id: 2, text: "Ubicar el excedente en la zona aérea o bodega designada para 'sobrestock' (backstock), rotulado con fecha y ordenado según las reglas de la tienda.", isBest: true, isWorst: false },
+          { id: 3, text: "Dejar las cajas sobrantes tiradas en el piso junto a la cabecera.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "El dueño de una tienda pequeña te ofrece dinero en efectivo o mercancía gratis a cambio de que le dejes material publicitario exclusivo (hieleras, toldos) asignado a otra tienda.",
+        options: [
+          { id: 1, text: "Aceptar el dinero porque el material publicitario 'es solo plástico promocional'.", isBest: false, isWorst: true },
+          { id: 2, text: "Aclarar con profesionalismo que los activos promocionales están auditados y asignados por sistema, rechazando la oferta y notificando el hecho al supervisor comercial.", isBest: true, isWorst: false },
+          { id: 3, text: "Prometerle que se lo traerás mañana para que no insista, sabiendo que no lo harás.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "La carretilla manual de reparto tiene un neumático desinflado, lo que hace que el carro tire hacia un lado y requiera el doble de fuerza en la espalda.",
+        options: [
+          { id: 1, text: "Forzar el cuerpo inclinándote con peso muerto para empujar la carretilla torcida todo el día.", isBest: false, isWorst: true },
+          { id: 2, text: "Detener el uso del equipo averiado, utilizar la bomba de aire del kit de vehículo o solicitar un reemplazo en base/tienda antes de mover cargas mayores.", isBest: true, isWorst: false },
+          { id: 3, text: "Descargar todo a mano llevando 3 cajas sobre los hombros.", isBest: false, isWorst: false }
+        ]
+      },
+      {
+        scenario: "Un cliente se acerca con una Coca-Cola Sin Azúcar y te pregunta detalladamente si el producto contiene fenilalanina o si es seguro para un diabético.",
+        options: [
+          { id: 1, text: "Asegurarle con total confianza que no tiene ningún peligro y que lo puede tomar en cualquier cantidad.", isBest: false, isWorst: true },
+          { id: 2, text: "Indicarle amablemente dónde leer la tabla nutricional y la lista de alérgenos/ingredientes en el envase, sugiriéndole consultar a su médico ante cualquier condición de salud puntual.", isBest: true, isWorst: false },
+          { id: 3, text: "Decirle que no tienes idea porque tú solo acomodas botellas.", isBest: false, isWorst: false }
+        ]
+      }
+    ];
+
+    let sjtDatabase = [];
+    let randomizedStoryQuestions = [];
+    let randomizedApproachPairs = [];
+
+    function shuffleArray(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function resetAttemptState() {
+      stopTimer();
+      document.getElementById("antiCheatBanner").style.display = "none";
+
+      sjtDatabase = shuffleArray(masterSjtBank).slice(0, 4);
+      randomizedStoryQuestions = shuffleArray(storyQuestions);
+      randomizedApproachPairs = shuffleArray(approachPairs);
+      testState.currentStage = "intro";
+      testState.tabSwitches = 0;
+      testState.sjtIndex = 0;
+      testState.sjtBestChoice = null;
+      testState.sjtWorstChoice = null;
+      testState.sjtTotalScore = 0;
+      testState.errorQueue = [];
+      testState.errorIndex = 0;
+      testState.errorHits = 0;
+      testState.errorFalseAlarms = 0;
+      testState.errorProcessed = 0;
+      testState.palletItems = [];
+      testState.palletSelectedIds = new Set();
+      testState.storyIndex = 0;
+      testState.storySelectedOpt = null;
+      testState.storyScore = 0;
+      testState.approachIndex = 0;
+      testState.approachSelectedChoice = null;
+      testState.approachTraits = [];
+    }
+
+    function restartTest() {
+      resetAttemptState();
+      showScreen("screenIntro");
+      document.getElementById("globalTimerPill").style.display = "none";
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      resetAttemptState();
+      showScreen("screenIntro");
+      document.getElementById("globalTimerPill").style.display = "none";
+    });
+
+    // FASE 2: BANCO EXTENSO DE ÍTEMS ALFANUMÉRICOS (INVOICE VS PHYSICAL)
+    const errorMasterBank = [
+      { sku: "CC-CAN-12OZ-24PK", desc: "Coca-Cola Lata Convencional 12 oz", invQty: 24, physQty: 24, invLot: "L-0408A", physLot: "L-0408A", match: true },
+      { sku: "CC-SCAN-12OZ-24PK", desc: "Coca-Cola Lata Sleek 12 oz", invQty: 24, physQty: 24, invLot: "L-0409A", physLot: "L-0409A", match: false, reason: "Formato de envase diferente (sleek vs regular)" },
+      { sku: "SPR-ZRO-20OZ-24BTL", desc: "Sprite Zero 20 oz", invQty: 24, physQty: 24, invLot: "L-0410A", physLot: "L-0410A", match: false, reason: "Volumen 20 oz vs 16.9 oz" },
+      { sku: "CC-ZRO-CAFF-FREE-2L", desc: "Coca-Cola Zero Sin Cafeína 2 L", invQty: 6, physQty: 6, invLot: "L-0411A", physLot: "L-0411A", match: false, reason: "Variante de fórmula incorrecta" },
+      { sku: "MNST-PEACH-16OZ-24", desc: "Monster Peach 16 oz", invQty: 24, physQty: 24, invLot: "L-0408A", physLot: "L-0408A", match: true },
+      { sku: "FAN-STRW-20OZ-24", desc: "Fanta Fresa 20 oz", invQty: 24, physQty: 24, invLot: "L-0412A", physLot: "L-0412A", match: false, reason: "Sabor diferente (fresa vs fruit punch)" },
+      { sku: "PWR-ZERO-FRTP-20OZ", desc: "Powerade Zero Fruit Punch 20 oz", invQty: 24, physQty: 24, invLot: "L-0413A", physLot: "L-0413B", match: false, reason: "Diferencia de lote y versión" },
+      { sku: "CC-ORIG-GLASS-8OZ-24", desc: "Coca-Cola Original Vidrio 8 oz", invQty: 30, physQty: 30, invLot: "L-0414A", physLot: "L-0414A", match: true },
+      { sku: "DSN-PUR-WAT-1GAL-04", desc: "Dasani Agua 1 Galón x4", invQty: 4, physQty: 6, invLot: "L-0415A", physLot: "L-0415A", match: false, reason: "Unidades por caja: 4 vs 6" },
+      { sku: "TOP-CHI-TWIST-LIME-12OZ", desc: "Topo Chico Twist Lima 12 oz", invQty: 12, physQty: 12, invLot: "L-0416A", physLot: "L-0416A", match: false, reason: "Aroma: lime vs lemon" },
+      { sku: "CC-PET-2000-06", desc: "Coca-Cola Original 2L (x6)", invQty: 40, physQty: 40, invLot: "L-2026-A", physLot: "L-2026-A", match: true },
+      { sku: "CC-ZRO-500-12", desc: "Coca-Cola Zero 500ml (x12)", invQty: 25, physQty: 20, invLot: "L-2026-B", physLot: "L-2026-B", match: false, reason: "Diferencia de cantidad (faltan 5)" },
+      { sku: "SPR-CAN-355-24", desc: "Sprite Lima Limón 355ml (x24)", invQty: 50, physQty: 50, invLot: "L-2026-C", physLot: "L-2026-C", match: true },
+      { sku: "PWR-BLU-600-12", desc: "Powerade Mountain Berry 600ml", invQty: 18, physQty: 18, invLot: "L-2026-E1", physLot: "L-2026-E2", match: false, reason: "Discrepancia en lote" },
+      { sku: "MNST-ENG-473-12", desc: "Monster Energy Green 473ml (x12)", invQty: 15, physQty: 15, invLot: "L-2026-F", physLot: "L-2026-F", match: true },
+      { sku: "CC-LF-CAN-355-24", desc: "Coca-Cola Light 355ml (x24)", invQty: 35, physQty: 35, invLot: "L-2026-H", physLot: "L-2026-H", match: true },
+      { sku: "CC-ZRO-CAN-355-24", desc: "Coca-Cola Zero 355ml (x24)", invSkuPhys: "CC-ZOR-CAN-355-24", invQty: 40, physQty: 40, invLot: "L-2026-K", physLot: "L-2026-K", match: false, reason: "Error tipográfico en SKU físico" },
+      { sku: "MNST-ULTR-473-12", desc: "Monster Ultra White 473ml (x12)", invQty: 14, physQty: 11, invLot: "L-2026-N", physLot: "L-2026-N", match: false, reason: "Faltan 3 cajas" },
+      { sku: "TOP-CHI-355-24", desc: "Topo Chico Mineral Glass 355ml", invQty: 15, physQty: 15, invLot: "L-2026-T1", physLot: "L-2026-T2", match: false, reason: "Lote cruzado de producción" },
+      { sku: "CC-CAFF-FREE-355", desc: "Coca-Cola Sin Cafeína 355ml", invSkuPhys: "CC-CAF-FREE-355", invQty: 10, physQty: 10, invLot: "L-2026-Z", physLot: "L-2026-Z", match: false, reason: "Error de código SKU" },
+      { sku: "CC-PET-1750-06", desc: "Coca-Cola Original 1.75 L (Pack x6)", invQty: 30, physQty: 30, invLot: "L-5521", physLot: "L-5521", match: false, reason: "Volumen del envase (1.75 L vs. 1.5 L)" },
+      { sku: "SPR-CAN-355-24", desc: "Sprite Lima 355 mL Lata Regular (x24)", invQty: 40, physQty: 40, invLot: "L-9011", physLot: "L-9011", match: false, reason: "Formato de lata (CAN vs. SCAN). La lata sleek es más alta y delgada" },
+      { sku: "MNST-ENG-473-12", desc: "Monster Green 473 mL (Pack x12)", invQty: 18, physQty: 18, invLot: "L-3340-A", physLot: "L-3340-A", match: true },
+      { sku: "CC-ZRO-12OZ-24PK", desc: "Coca-Cola Zero 12 oz (Pack x24)", invQty: 25, physQty: 25, invLot: "L-1209", physLot: "L-1209", match: false, reason: "Bulto de 12 unidades en vez de 24" },
+      { sku: "PWR-BLU-600-12", desc: "Powerade Mountain Berry 600 mL", invQty: 15, physQty: 15, invLot: "L-8821", physLot: "L-8812", match: false, reason: "Transposición numérica del lote (8821 vs. 8812)" },
+      { sku: "TOP-CHI-355-GLS", desc: "Topo Chico Mineral Vidrio 355 mL", invQty: 20, physQty: 20, invLot: "L-7070", physLot: "L-7070", match: false, reason: "Material del contenedor (GLS vs. PET)" },
+      { sku: "CC-ZRO-CF-2000", desc: "Coca-Cola Zero Sin Cafeína 2 L (x6)", invQty: 12, physQty: 12, invLot: "L-4040", physLot: "L-4040", match: false, reason: "Fórmula sin cafeína (CF) vs. regular" },
+      { sku: "DSN-PUR-WAT-20OZ", desc: "Dasani Agua Purificada 20 oz (x24)", invQty: 50, physQty: 50, invLot: "L-9988", physLot: "L-9988", match: true },
+      { sku: "DSN-SPK-355-LIM", desc: "Dasani Sparkling Limón 355 mL (x12)", invQty: 10, physQty: 10, invLot: "L-1102", physLot: "L-1102", match: false, reason: "Sabor Lima (LME) vs. Limón (LIM)" },
+      { sku: "MNST-MNG-473-12", desc: "Monster Mango Loco 473 mL (x12)", invQty: 35, physQty: 31, invLot: "L-6610", physLot: "L-6610", match: false, reason: "Faltan 4 cajas" },
+      { sku: "FAN-ORG-PET-2000", desc: "Fanta Naranja 2 L (Pack x6)", invQty: 16, physQty: 16, invLot: "L-2345", physLot: "L-2345", match: false, reason: "Tipografía en SKU (ORG cambiado por ROG)" },
+      { sku: "CC-ORIG-GLASS-8OZ", desc: "Coca-Cola Botella Vidrio 8 oz (x24)", invQty: 22, physQty: 22, invLot: "L-5151", physLot: "L-5151", match: true },
+      { sku: "PWR-ZERO-FRTP-600", desc: "Powerade Zero Fruit Punch 600 mL", invQty: 14, physQty: 14, invLot: "L-8090", physLot: "L-8090", match: false, reason: "Variante ZERO vs. REG" },
+      { sku: "CC-ORIG-PET-3000", desc: "Coca-Cola Original 3 L (Pack x4)", invQty: 10, physQty: 14, invLot: "L-1010", physLot: "L-1010", match: false, reason: "Sobraban 4 cajas físicas" },
+      { sku: "FAN-GRP-CAN-355", desc: "Fanta Uva 355 mL (Pack x12)", invQty: 15, physQty: 15, invLot: "L-6789", physLot: "L-6789", match: false, reason: "Sabor (GRP Uva vs. BER Berry)" },
+      { sku: "MNST-WHT-473-12", desc: "Monster Ultra White", invQty: 0, physQty: 0, invLot: "11/04/2027", physLot: "04/11/2027", match: false, reason: "Fecha de vencimiento invertida (Día/Mes)" },
+      { sku: "CC-GLS-1000-RET", desc: "Coca-Cola 1 L Vidrio Retornable (x12)", invQty: 40, physQty: 40, invLot: "L-3412", physLot: "L-3412", match: false, reason: "Tipo de circuito (RET vs. NR)" },
+      { sku: "CC-VAN-CAN-355-12", desc: "Coca-Cola Vanilla 355 mL (Pack x12)", invQty: 8, physQty: 8, invLot: "L-9900", physLot: "L-9900", match: true },
+      { sku: "SPR-PET-20OZ-24", desc: "Sprite Lima 20 oz (~591 mL)", invQty: 20, physQty: 20, invLot: "L-7744", physLot: "L-7744", match: false, reason: "Tamaño individual (20 oz vs. 16.9 oz)" },
+      { sku: "TOP-CHI-TWST-GRPF", desc: "Topo Chico Twist Pomelo 355 mL", invQty: 12, physQty: 12, invLot: "LOT-2026-A", physLot: "LOT-2026-B", match: false, reason: "Letra terminal del lote (A vs. B)" }
+    ];
+
+    // FASE 3: PALLET POOL RANDOMIZADO (12 Cajas por pallet con anomalías sembradas)
+    const palletHazardPool = [
+      { title: "CC 2L [FUGA / LÍQUIDO]", isHazard: true, reason: "Envase pinchado con derrame activo", desc: "Fuga que humedece cajas inferiores" },
+      { title: "BOTEL. 3L SOBRE LATAS", isHazard: true, reason: "Riesgo de aplastamiento", desc: "Peso mayor apilado sobre empaque liviano" },
+      { title: "LOTE VENCIDO: 10-AGO", isHazard: true, reason: "Violación FIFO / Vencimiento", desc: "Producto no apto para reposición en sala" },
+      { title: "BASE CON INCLINACIÓN >15°", isHazard: true, reason: "Riesgo de derrumbe de estiba", desc: "Inestabilidad estructural de la carga" },
+      { title: "2L SOBRE LATAS 355ML", isHazard: true, reason: "Peso invertido / aplastamiento vertical", desc: "Cuatro capas de 2 L apoyadas directamente sobre bandejas de latas; riesgo crítico de colapso por top load." },
+      { title: "FILM ROTO EN CAPAS BAJAS", isHazard: true, reason: "Pérdida de amarre basal", desc: "Stretch wrap desgarrado en dos capas inferiores; la base queda sin tensión perimetral." },
+      { title: "TACO LATERAL ASTILLADO", isHazard: true, reason: "Fallo estructural de tarima", desc: "Bloque de madera con rajadura y astillas expuestas; riesgo de vuelco durante la maniobra." },
+      { title: "MANCHA OSCURA / CARTÓN REBLANDecido", isHazard: true, reason: "Merma oculta / inestabilidad", desc: "Esquina húmeda y blanda en nivel medio; fuga previa que debilitó la resistencia vertical del cartón." },
+      { title: "VOLADIZO >5 CM", isHazard: true, reason: "Anomalía de estiba", desc: "Cajas de Sprite sobresaliendo del borde de la tarima; pérdida de soporte y riesgo de enganche." },
+      { title: "LATAS CON ABOLLADURA DE CIERRE", isHazard: true, reason: "Defecto crítico de calidad", desc: "Seam dent visible en dos latas; riesgo de pérdida de presión y contaminación microbiana." },
+      { title: "CADUCIDAD INVERTIDA EN FILA", isHazard: true, reason: "Error de rotación FIFO", desc: "Producto más viejo bloqueado detrás del nuevo; riesgo de merma por vencimiento." },
+      { title: "INCLINACIÓN DE COLUMNA >10°", isHazard: true, reason: "Peligro de vuelco", desc: "Mitad superior desviada hacia un lado; centro de gravedad desplazado y riesgo de derrumbe." },
+      { title: "VIDRIO BAJO PET 2L", isHazard: true, reason: "Riesgo de fractura", desc: "Botellas retornables de vidrio bajo cajas pesadas de PET sin amortiguación; presión puntual sobre cuellos." },
+      { title: "BASE CON CREASING / PLEGADO", isHazard: true, reason: "Fatiga estructural", desc: "Esquinas inferiores deformadas en acordeón; cartón con pérdida de BCT y resistencia de carga." },
+      { title: "CLAVO SOBRESALIENTE EN TARIMA", isHazard: true, reason: "Riesgo de accidente", desc: "Cabeza de clavo saliendo lateralmente; riesgo de corte y daño a equipos." },
+      { title: "HUECO CENTRAL EN NIVEL MEDIO", isHazard: true, reason: "Inestabilidad central", desc: "Caja faltante en el núcleo del pallet; capas superiores se hunden y colapsan hacia el centro." },
+      { title: "BOTELLA PET CON BASE DEFORMADA", isHazard: true, reason: "Defecto técnico de envase", desc: "Basas abombadas y deformadas; la botella no se estabiliza y puede caerse en góndola." }
+    ];
+
+    const palletNormalPool = [
+      "CC Original 2L (OK)", "CC Zero 2L (OK)", "Sprite 2L (OK)", "Fanta 2L (OK)",
+      "Powerade 600ml (OK)", "Dasani 500ml (OK)", "Monster Green (OK)", "Coca Light 500ml (OK)",
+      "Sprite Zero 500ml (OK)", "Fanta Naranja 500ml (OK)", "Topo Chico 355ml (OK)", "CC Original 355ml (OK)",
+      "CINTA DE CONTROL CALIDAD (OK)", "PALLET MIXTO CON SLIP SHEET (OK)", "ETIQUETA SKU DESPEGADA pero legible (OK)", "CONDENSACIÓN AMBIENTAL (OK)",
+      "ESQUINEROS DE CARTÓN + FLEJES TENSOR (OK)", "TOP SHEET CON POLVO (OK)", "ESTIBA EN PATRÓN TRABADO (OK)", "SISTEMA DE FLEJADO ESTÁNDAR (OK)"
+    ];
+
+    // FASE 4: TELL US YOUR STORY
+    const storyQuestions = [
+      {
+        q: "Como Repositor/Merchandiser de Swire Coca-Cola pasarás la mayor parte de tu jornada manejando en ruta y trabajando en solitario. ¿Cómo manejas esta dinámica?",
+        options: [
+          { text: "Me adapto muy bien al trabajo autónomo; soy metódica para seguir mi lista de tiendas y me automotivo para cumplir los estándares sin requerir supervisión continua.", score: 100 },
+          { text: "Prefiero trabajar en un equipo grande donde el supervisor esté presente para coordinar cada paso del turno.", score: 35 },
+          { text: "Hago las tareas lo más rápido posible para terminar temprano, dejando algunos detalles menores para el día siguiente.", score: 10 }
+        ]
+      },
+      {
+        q: "Al rotar la mercancía en una exhibición encuentras botellas con vencimiento en 4 días y producto nuevo recién llegado con vencimiento en 6 meses. ¿Cuál es tu protocolo exacto?",
+        options: [
+          { text: "Aplico rigurosamente la regla FIFO (First In, First Out): coloco el lote próximo a vencer al frente para facilitar su venta inmediata y el nuevo detrás; si está dentro de la ventana crítica de merma, lo segrego y notifico.", score: 100 },
+          { text: "Coloco el lote nuevo adelante porque las botellas lucen más limpias y llamativas para los clientes.", score: 0 },
+          { text: "Dejo las botellas mezcladas ya que el consumidor suele elegir al azar en góndola.", score: 15 }
+        ]
+      },
+      {
+        q: "En tus empleos anteriores o actividades formativas, ¿con qué frecuencia tuviste que ausentarte sin previo aviso o llegar tarde a tu turno?",
+        options: [
+          { text: "Nunca; siempre avisé con al menos 24 horas de antelación o llegué a tiempo todos los días.", score: 100 },
+          { text: "Rara vez (1 o 2 veces al año), únicamente por emergencias médicas de fuerza mayor debidamente justificadas.", score: 65 },
+          { text: "Algunas veces al mes, cuando el tráfico o el clima hicieron imposible llegar a la hora.", score: 15 }
+        ]
+      },
+      {
+        q: "Este puesto requiere levantar continuamente paquetes de hasta 20-25 kg (45-50 lbs), agacharse y caminar entre 10,000 y 15,000 pasos diarios durante todo el turno. ¿Cómo te sientes respecto a este nivel de demanda física?",
+        options: [
+          { text: "Me resulta indiferente, aunque prefiero tareas de oficina cuando sea posible.", score: 20 },
+          { text: "Muy cómoda; disfruto los trabajos activos que implican movimiento físico continuo y conozco las técnicas de postura para proteger mi columna.", score: 100 },
+          { text: "Puedo realizarlo si me conceden pausas regulares cada media hora para descansar la espalda.", score: 45 }
+        ]
+      },
+      {
+        q: "¿Cuál de los siguientes entornos describe mejor tu forma ideal de trabajar en el día a día?",
+        options: [
+          { text: "Trabajar de manera autónoma, gestionando mi propio ritmo a partir de una lista clara de objetivos diarios sin necesidad de que alguien me supervise.", score: 100 },
+          { text: "Estar integrada en un equipo presencial donde el líder asigne tareas paso a paso a lo largo del turno.", score: 30 },
+          { text: "Trabajar en soledad únicamente si el trabajo es muy liviano.", score: 15 }
+        ]
+      },
+      {
+        q: "La reposición comercial implica repetir a diario la misma secuencia: descargar, verificar fechas (FIFO), colocar botellas en el estante y limpiar. ¿Cómo manejas las labores altamente repetitivas?",
+        options: [
+          { text: "Me aburro rápidamente si las tareas no cambian todos los días.", score: 10 },
+          { text: "Mantengo la atención y el rigor en cada repetición; encuentro satisfacción en dejar cada góndola ordenada y con el estándar de calidad impecable.", score: 100 },
+          { text: "Busco formas de omitir pasos secundarios (como la limpieza) para no sentir la jornada monótona.", score: 5 }
+        ]
+      },
+      {
+        q: "Si mientras acomodas un estante en una bodega solitaria se te resbala una caja de botellas de vidrio y se rompe sin que nadie te haya visto, ¿cómo has procedido en situaciones similares?",
+        options: [
+          { text: "Aseguré el área, limpié los vidrios de inmediato y registré formalmente la merma en el sistema para informar a mi supervisor.", score: 100 },
+          { text: "Limpié el piso y tiré los restos a la basura para que no pareciera que fui descuidada.", score: 10 },
+          { text: "Dejé la caja dañada al fondo de la tarima para que el personal de la tienda la procesara como rotura de transporte.", score: 0 }
+        ]
+      },
+      {
+        q: "La mayoría de las rutas de reposición comienzan entre las 5:00 AM y las 6:00 AM para ingresar antes de que abran las tiendas al público. ¿Cuál es tu historial con jornadas de inicio temprano?",
+        options: [
+          { text: "Me adapto con facilidad; organizo mi descanso la noche anterior y tengo un récord impecable de inicio puntual en turnos matutinos.", score: 100 },
+          { text: "Me cuesta levantarme temprano durante los primeros meses, pero con el tiempo me acostumbro.", score: 45 },
+          { text: "Prefiero turnos vespertinos o nocturnos porque el rendimiento de mañana suele ser menor.", score: 10 }
+        ]
+      },
+      {
+        q: "Cuando un imprevisto fuera de tu control (tráfico pesado, demora de entrega del camión) te quita una hora de tu itinerario, ¿cómo sueles reaccionar?",
+        options: [
+          { text: "Me altero y doy por perdida la jornada reduciendo el esfuerzo en las tiendas restantes.", score: 10 },
+          { text: "Mantengo la calma, recalculo los tiempos priorizando los locales de mayor volumen y notifico de inmediato a mi supervisor para coordinar el plan.", score: 100 },
+          { text: "Acelero en carretera y manejo por encima del límite de velocidad para recuperar el tiempo perdido a toda costa.", score: 0 }
+        ]
+      },
+      {
+        q: "En tu experiencia laboral, ¿con qué frecuencia has utilizado los Equipos de Protección Personal (guantes, botas de casquillo/seguridad, faja si aplica) cuando no había un jefe supervisando?",
+        options: [
+          { text: "Siempre, al 100%; la seguridad personal no depende de que alguien mire, sino de mi autocuidado y el de mis compañeros.", score: 100 },
+          { text: "Solo cuando el trabajo se pone verdaderamente peligroso o si hace mucho frío.", score: 35 },
+          { text: "Procuro evitarlos si me hacen transpirar o me hacen moverme más despacio.", score: 5 }
+        ]
+      },
+      {
+        q: "¿Cómo reaccionas cuando un auditor o supervisor revisa tu trabajo y te pide desarmar una cabecera porque no cumple estrictamente con el planograma oficial?",
+        options: [
+          { text: "Defiendo mi criterio y le explico que mi forma de acomodarlo era visualmente más atractiva.", score: 15 },
+          { text: "Acepto la retroalimentación de manera constructiva, corrijo la exhibición según la guía de la marca y presto mayor atención en la siguiente tienda.", score: 100 },
+          { text: "Deshago el trabajo con frustración y evito hablar con el supervisor durante el resto de la semana.", score: 20 }
+        ]
+      },
+      {
+        q: "Si por buena organización terminas tu ruta 45 minutos antes de que concluya oficialmente tu horario de salida, ¿qué haces?",
+        options: [
+          { text: "Me marcho a casa discretamente aprovechando el tiempo libre ganado.", score: 20 },
+          { text: "Contacto a mi supervisor para avisar que mi ruta está completa y consultar si hay alguna tienda cercana con alta demanda que necesite refuerzo.", score: 100 },
+          { text: "Me quedo en el vehículo esperando a que el reloj marque la hora exacta de salida.", score: 30 }
+        ]
+      },
+      {
+        q: "Cuando un cliente del supermercado te ha tratado de forma descortés o te ha gritado por la falta de un producto que no depende de ti, ¿cómo te has comportado?",
+        options: [
+          { text: "Le respondí con el mismo tono para evitar que me falte al respeto.", score: 5 },
+          { text: "Escuché con serenidad, me disculpé por el malestar, le ofrecí revisar en bodega o consultar con un empleado de la tienda, manteniendo una postura profesional.", score: 100 },
+          { text: "Me di la vuelta y lo dejé hablando solo para no perder tiempo.", score: 30 }
+        ]
+      },
+      {
+        q: "El rol exige el uso diario de aplicaciones móviles para registrar entrada/salida, cargar fotos de exhibiciones y escanear inventarios. ¿Cuál es tu nivel de familiaridad con estas tecnologías?",
+        options: [
+          { text: "Aprendo muy rápido a utilizar aplicaciones nuevas y soy disciplinada para ingresar la información en tiempo real sin omitir registros.", score: 100 },
+          { text: "Prefiero el papel y el bolígrafo; la tecnología suele ralentizarme en el trabajo de campo.", score: 25 },
+          { text: "Uso la app solo cuando me lo recuerdan por mensaje.", score: 15 }
+        ]
+      },
+      {
+        q: "Si descubres un método para apilar cajas que no sigue el manual pero te ahorra 15 minutos por parada, ¿qué harías?",
+        options: [
+          { text: "Implementarlo de inmediato por mi cuenta sin consultar a nadie.", score: 5 },
+          { text: "Mantener el método estándar autorizado y consultar primero con mi supervisor o líder de seguridad antes de alterar cualquier técnica de estiba.", score: 100 },
+          { text: "Utilizarlo solo cuando esté atrasada y ocultarlo si viene una inspección.", score: 0 }
+        ]
+      },
+      {
+        q: "En días de frío intenso, lluvia continua o calor extremo, ¿cómo suele ser tu nivel de rendimiento en tareas de almacén o intemperie?",
+        options: [
+          { text: "Mantengo mi energía y productividad igual que en un día templado, vistiéndome adecuadamente e hidratándome de forma continua.", score: 100 },
+          { text: "Mi ritmo cae significativamente y busco posponer las tareas más pesadas para días soleados.", score: 20 },
+          { text: "Prefiero no trabajar en exteriores cuando el clima no es óptimo.", score: 10 }
+        ]
+      },
+      {
+        q: "Si ves a otro repositor de la empresa consumiendo una bebida del pallet sin pagarla o escondiendo botellas dañadas detrás de la mercadería buena, ¿qué harías?",
+        options: [
+          { text: "Quedarme callada porque no me gusta ser delatora ni meterme en problemas ajenos.", score: 5 },
+          { text: "Hablar con él en privado para advertirle del riesgo y, si la conducta persiste o causa perjuicio grave, reportarlo confidencialmente por los canales de ética de la compañía.", score: 100 },
+          { text: "Imitar su conducta si veo que nadie lo sanciona.", score: 0 }
+        ]
+      },
+      {
+        q: "En relación con el manejo de vehículos o herramientas compartidas de la empresa, ¿cuál ha sido tu conducta habitual?",
+        options: [
+          { text: "Realizar inspecciones visuales previas (aceite, neumáticos, luces), reportar cualquier anomalía mecánica a tiempo y mantener el habitáculo limpio.", score: 100 },
+          { text: "Usarlo sin revisar nada y esperar a que el vehículo falle para que el taller se haga cargo.", score: 10 },
+          { text: "Conducir rápido entre paradas para aprovechar el tiempo del turno.", score: 0 }
+        ]
+      },
+      {
+        q: "Al llegar al quinto o sexto día consecutivo de esfuerzo físico y manejo en ruta, ¿cómo garantizas que tu atención al detalle no decaiga?",
+        options: [
+          { text: "Es inevitable cometer errores los viernes debido al cansancio acumulado de la semana.", score: 15 },
+          { text: "Cuido mis hábitos de descanso fuera del trabajo, realizo estiramientos y mantengo el mismo chequeo sistemático en la última tienda que en la primera.", score: 100 },
+          { text: "Trabajo más lento para no cansarme tanto, aunque deje góndolas a medio llenar.", score: 35 }
+        ]
+      },
+      {
+        q: "Aunque eres empleada de Swire Coca-Cola, trabajas dentro de las instalaciones de supermercados ajenos (Walmart, Kroger, etc.). ¿Cómo describes tu relación con el personal interno de esas tiendas?",
+        options: [
+          { text: "Cordial, colaborativa y respetuosa; entiendo que somos socios comerciales y trato a sus encargados y repositores como parte de mi equipo de trabajo.", score: 100 },
+          { text: "Distante y fría; prefiero no hablar con nadie del supermercado para que no me asignen tareas que no me corresponden.", score: 25 },
+          { text: "Competitiva; siempre trato de imponer mi espacio de góndola sobre los empleados de la tienda.", score: 5 }
+        ]
+      },
+      {
+        q: "¿Cuál es tu estándar cuando colocas los productos en la nevera o góndola principal?",
+        options: [
+          { text: "Me basta con que las botellas estén dentro del estante sin importar hacia dónde mira la marca.", score: 10 },
+          { text: "Me aseguro de que todas las etiquetas miren directamente hacia el frente (facing), con las filas alineadas al borde del estante y los productos más antiguos al frente.", score: 100 },
+          { text: "Ordeno bien solo las dos primeras filas delanteras para terminar rápido.", score: 30 }
+        ]
+      },
+      {
+        q: "¿Qué estás buscando en esta posición con Swire Coca-Cola?",
+        options: [
+          { text: "Un empleo temporal de pocas semanas mientras consigo algo diferente en otro sector.", score: 10 },
+          { text: "Estabilidad laboral en una empresa sólida, donde pueda consolidarme en la ruta, demostrar mi valor operativo y buscar oportunidades de crecimiento a mediano y largo plazo.", score: 100 },
+          { text: "Un trabajo que no me exija mucho compromiso mental ni físico.", score: 5 }
+        ]
+      }
+    ];
+
+    // FASE 5: DESCRIBE YOUR APPROACH (TEST IPSATIVO)
+    const approachPairs = [
+      {
+        a: "Me tomo el tiempo necesario para asegurarme de que cada fila de botellas esté perfectamente alineada con la etiqueta al frente.",
+        b: "Me enfoco en descargar el pallet a máxima velocidad para estar lista ante cualquier imprevisto de la ruta.",
+        traitA: "quality", traitB: "rush"
+      },
+      {
+        a: "Cumplo las normas ergonómicas y uso la carretilla adecuada sin importar si estoy apurada.",
+        b: "Puedo exceder la carga manual de peso si eso me permite ahorrar viajes al depósito.",
+        traitA: "safety", traitB: "unsafe"
+      },
+      {
+        a: "Disfruto seguir un proceso estructurado y ordenado en cada una de las tiendas de mi recorrido.",
+        b: "Prefiero improvisar la forma de exhibición según el espacio disponible en el momento.",
+        traitA: "structured", traitB: "unstructured"
+      },
+      {
+        a: "Si surge un inconveniente con el espacio en góndola, busco una alternativa constructiva antes de pedir ayuda.",
+        b: "Ante cualquier discrepancia espero a que mi supervisor llegue para decirme qué hacer.",
+        traitA: "proactive", traitB: "dependent"
+      },
+      {
+        a: "Prefiero invertir un par de minutos extra para asegurar que cada botella tenga la etiqueta hacia el frente y las líneas queden impecables.",
+        b: "Prefiero apurar la descarga y colocación de cajas para terminar antes del tiempo asignado, resolviendo solo lo principal.",
+        traitA: "detail", traitB: "speed"
+      },
+      {
+        a: "En momentos de mucha carga, a veces cargo más cajas de las permitidas para no hacer tantos viajes con la carretilla.",
+        b: "Siempre divido las cargas y doblo las rodillas para levantar peso con las piernas, sin importar cuántos viajes deba realizar.",
+        traitA: "unsafe", traitB: "ergonomic"
+      },
+      {
+        a: "Me siento muy cómoda gestionando mi propio recorrido diario y resolviendo imprevistos por mi cuenta sin necesidad de que alguien me vigile.",
+        b: "Trabajo con mayor seguridad si un supervisor me indica paso a paso lo que debo hacer en cada momento del turno.",
+        traitA: "autonomy", traitB: "supervised"
+      },
+      {
+        a: "Si el depósito está lleno, acomodo la mercancía en el primer hueco que encuentre sin verificar las fechas de vencimiento.",
+        b: "Aplico de forma metódica la rotación FIFO, trayendo siempre el producto viejo al frente antes de colocar el lote nuevo atrás.",
+        traitA: "reckless", traitB: "fifo"
+      },
+      {
+        a: "Mantengo una actitud serena, respetuosa y profesional, incluso si el encargado de la tienda me habla en tono molesto.",
+        b: "Si alguien del supermercado me hace un reclamo injusto, le respondo de inmediato con la misma firmeza para marcar mi límite.",
+        traitA: "calm", traitB: "confrontation"
+      },
+      {
+        a: "Me desmotiva tener que realizar exactamente las mismas tareas de descarga, estiba y orden todos los días.",
+        b: "Encuentro satisfacción en mantener una rutina estructurada y en dejar cada punto de venta impecable día tras día.",
+        traitA: "novelty", traitB: "routine"
+      },
+      {
+        a: "Utilizo mis elementos de protección personal (botas de seguridad, guantes) en todo momento, aunque nadie me esté supervisando.",
+        b: "Solo me coloco los guantes o elementos de seguridad cuando la tarea parece visiblemente peligrosa o si hay inspectores cerca.",
+        traitA: "safety", traitB: "complacent"
+      },
+      {
+        a: "Si veo carteles de precios caídos o rotos en la sección de bebidas, no intervengo porque no es responsabilidad de mi empresa.",
+        b: "Si detecto señalética dañada o precios desalineados en nuestra góndola, aviso al personal o lo corrijo para cuidar la imagen de la marca.",
+        traitA: "indifferent", traitB: "ownership"
+      },
+      {
+        a: "Si encuentro un envase con fuga o una caja rota en el pallet, la segrego de inmediato y la registro como merma.",
+        b: "Si un producto tiene un daño leve, lo acomodo al fondo del estante para evitar tramitar la devolución.",
+        traitA: "integrity", traitB: "concealment"
+      },
+      {
+        a: "Si el tráfico pesado o la demora del camión alteran mi itinerario matutino, me frustro y me cuesta recuperar el ritmo.",
+        b: "Acepto los imprevistos de la ruta con calma y reorganizo mis prioridades del día para cumplir los objetivos clave.",
+        traitA: "stress", traitB: "resilience"
+      },
+      {
+        a: "Dedico unos momentos a limpiar y retirar el polvo de las bandejas antes de montar las botellas nuevas.",
+        b: "Considero que la limpieza de los estantes corresponde exclusivamente al supermercado y me limito a cargar producto.",
+        traitA: "cleanliness", traitB: "neglect"
+      },
+      {
+        a: "Me incomoda que un supervisor revise mi trabajo y me pida cambiar la exhibición que ya di por terminada.",
+        b: "Recibo las observaciones sobre mis exhibiciones de forma positiva y las aplico de inmediato para mejorar mi técnica.",
+        traitA: "defensive", traitB: "coachable"
+      },
+      {
+        a: "Me establezco metas horarias personales para avanzar en cada supermercado con eficiencia y concentración.",
+        b: "Rindo mejor cuando hay compañeros o jefes cerca que marquen el ritmo al que debemos avanzar.",
+        traitA: "selfdriven", traitB: "externalcontrol"
+      },
+      {
+        a: "Utilizo las carretillas o equipos mecánicos sin detenerme a revisarlos, siempre que sigan rodando.",
+        b: "Inspecciono mis herramientas de trabajo antes de usarlas y reporto cualquier rueda trabada o desgaste para evitar accidentes.",
+        traitA: "careless", traitB: "maintenance"
+      },
+      {
+        a: "Verifico con atención los números de remito y las cantidades físicas descargadas antes de firmar cualquier comprobante.",
+        b: "Firmo rápido la recepción para no retrasar al chofer del camión, asumiendo que la carga viene completa.",
+        traitA: "precision", traitB: "hasty"
+      },
+      {
+        a: "Si un comprador me interrumpe para consultar por un producto, le indico secamente que busque a alguien de la tienda para no demorarme.",
+        b: "Respondo cordialmente a los compradores orientándolos con amabilidad hacia la sección correcta antes de continuar mi labor.",
+        traitA: "dismissive", traitB: "service"
+      },
+      {
+        a: "Respeto con exactitud las posiciones y el número de frentes que marca el planograma oficial de la empresa.",
+        b: "Prefiero acomodar los productos según mi intuición del momento o donde vea espacios libres en el mueble.",
+        traitA: "planogram", traitB: "improvisation"
+      },
+      {
+        a: "Cuando siento fatiga al final del turno, tiendo a apresurar el movimiento de cajas para terminar antes, aunque descuide la postura.",
+        b: "Ante el cansancio físico, mantengo la técnica de levantamiento con piernas y utilizo la carretilla para no forzar la espalda.",
+        traitA: "fatigueRisk", traitB: "posture"
+      },
+      {
+        a: "Si cometo un error en el conteo de cajas o en el orden de una góndola, asumo la responsabilidad y lo corrijo sin excusas.",
+        b: "Ante un error en mi sector, busco justificarme señalando la falta de tiempo o el desorden previo que dejaron otros.",
+        traitA: "accountability", traitB: "blame"
+      },
+      {
+        a: "Prefiero no enviar mensajes ni llamar a mi supervisor durante la jornada, incluso si surge un retraso considerable en la tienda.",
+        b: "Mantengo informado a mi supervisor de forma breve y oportuna si se presenta cualquier eventualidad que altere el plan de la ruta.",
+        traitA: "isolation", traitB: "communication"
+      }
+    ];
+
+    /* =========================================================
+       2. CONTROL DE ESTADO GLOBAL Y SISTEMA DE PENALIZACIÓN
+       ========================================================= */
+    let testState = {
+      currentStage: "intro", // intro, sjt, errors, pallet, story, approach, results
+      timerInterval: null,
+      timeRemaining: 0,
+      
+      // Anti-cheat
+      tabSwitches: 0,
+
+      // Fase 1: SJT
+      sjtIndex: 0,
+      sjtBestChoice: null,
+      sjtWorstChoice: null,
+      sjtTotalScore: 0,
+
+      // Fase 2: Errors
+      errorQueue: [],
+      errorIndex: 0,
+      errorHits: 0,
+      errorFalseAlarms: 0,
+      errorProcessed: 0,
+
+      // Fase 3: Pallet
+      palletItems: [],
+      palletSelectedIds: new Set(),
+
+      // Fase 4: Story
+      storyIndex: 0,
+      storySelectedOpt: null,
+      storyScore: 0,
+
+      // Fase 5: Approach
+      approachIndex: 0,
+      approachSelectedChoice: null,
+      approachTraits: []
+    };
+
+    /* =========================================================
+       3. LISTENERS DE SEGURIDAD / ANTI-CHEAT
+       ========================================================= */
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden && testState.currentStage !== "intro" && testState.currentStage !== "results") {
+        registerTabViolation();
+      }
+    });
+
+    window.addEventListener("blur", () => {
+      if (testState.currentStage !== "intro" && testState.currentStage !== "results") {
+        registerTabViolation();
+      }
+    });
+
+    function registerTabViolation() {
+      testState.tabSwitches++;
+      const banner = document.getElementById("antiCheatBanner");
+      banner.style.display = "block";
+      banner.innerText = `⚠️ ADVERTENCIA: Pérdida de foco detectada (${testState.tabSwitches}). El sistema HireVue registra cambios de ventana como penalización en el reporte.`;
+      setTimeout(() => {
+        banner.style.display = "none";
+      }, 5000);
+    }
+
+    // Atajos de teclado para Fase 2 (Flechas Izquierda / Derecha)
+    window.addEventListener("keydown", (e) => {
+      if (testState.currentStage === "errors") {
+        if (e.key === "ArrowLeft") {
+          submitErrorChoice(true);
+        } else if (e.key === "ArrowRight") {
+          submitErrorChoice(false);
+        }
+      }
+    });
+
+    /* =========================================================
+       4. CRONÓMETRO CON TRANSICIÓN AUTOMÁTICA Y BLOQUEO
+       ========================================================= */
+    function startStageTimer(durationSeconds, timeoutCallback) {
+      clearInterval(testState.timerInterval);
+      testState.timeRemaining = durationSeconds;
+      
+      const pill = document.getElementById("globalTimerPill");
+      const txt = document.getElementById("timerText");
+      pill.style.display = "flex";
+      pill.classList.remove("urgent");
+
+      function updateClock() {
+        const mins = Math.floor(testState.timeRemaining / 60);
+        const secs = testState.timeRemaining % 60;
+        txt.innerText = `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+
+        if (testState.timeRemaining <= 30) {
+          pill.classList.add("urgent");
+        }
+
+        if (testState.timeRemaining <= 0) {
+          clearInterval(testState.timerInterval);
+          pill.style.display = "none";
+          triggerTimeoutSequence(timeoutCallback);
+          return;
+        }
+        testState.timeRemaining--;
+      }
+
+      updateClock();
+      testState.timerInterval = setInterval(updateClock, 1000);
+    }
+
+    function stopTimer() {
+      clearInterval(testState.timerInterval);
+      document.getElementById("globalTimerPill").style.display = "none";
+    }
+
+    function triggerTimeoutSequence(callback) {
+      const overlay = document.getElementById("timeoutOverlay");
+      overlay.style.display = "flex";
+      setTimeout(() => {
+        overlay.style.display = "none";
+        if (callback) callback();
+      }, 1500);
+    }
+
+    /* =========================================================
+       5. NAVEGACIÓN Y VISTAS
+       ========================================================= */
+    function showScreen(screenId) {
+      const screens = ["screenIntro", "screenSjt", "screenErrors", "screenPallet", "screenStory", "screenApproach", "screenResults"];
+      screens.forEach(id => document.getElementById(id).style.display = "none");
+      document.getElementById(screenId).style.display = "block";
+      window.scrollTo(0, 0);
+    }
+
+    function startAssessment() {
+      resetAttemptState();
+      testState.currentStage = "sjt";
+      showScreen("screenSjt");
+      startStageTimer(240, () => {
+        advanceFromSjtToErrors();
+      });
+      loadSjtScenario();
+    }
+
+    /* =========================================================
+       FASE 1: SJT MATRIX (MEJOR Y PEOR)
+       ========================================================= */
+    function loadSjtScenario() {
+      testState.sjtBestChoice = null;
+      testState.sjtWorstChoice = null;
+      document.getElementById("sjtNextBtn").disabled = true;
+
+      const current = sjtDatabase[testState.sjtIndex];
+      document.getElementById("sjtTitle").innerText = `Escenario ${testState.sjtIndex + 1} de ${sjtDatabase.length}`;
+      document.getElementById("sjtScenarioText").innerText = current.scenario;
+
+      const tbody = document.getElementById("sjtTableBody");
+      tbody.innerHTML = "";
+
+      current.options.forEach(opt => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${opt.text}</td>
+          <td class="sjt-cell-btn">
+            <button type="button" class="btn-choice" id="btnBest_${opt.id}" onclick="setSjtChoice(${opt.id}, 'best')" aria-label="Marcar como la mejor acción">Mejor</button>
+          </td>
+          <td class="sjt-cell-btn">
+            <button type="button" class="btn-choice" id="btnWorst_${opt.id}" onclick="setSjtChoice(${opt.id}, 'worst')" aria-label="Marcar como la peor acción">Peor</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function setSjtChoice(optId, type) {
+      if (type === "best") {
+        if (testState.sjtWorstChoice === optId) {
+          testState.sjtWorstChoice = null; // No puede ser mejor y peor al mismo tiempo
+        }
+        testState.sjtBestChoice = optId;
+      } else if (type === "worst") {
+        if (testState.sjtBestChoice === optId) {
+          testState.sjtBestChoice = null;
+        }
+        testState.sjtWorstChoice = optId;
+      }
+
+      // Actualizar UI
+      const current = sjtDatabase[testState.sjtIndex];
+      current.options.forEach(opt => {
+        const btnB = document.getElementById(`btnBest_${opt.id}`);
+        const btnW = document.getElementById(`btnWorst_${opt.id}`);
+        btnB.className = "btn-choice" + (testState.sjtBestChoice === opt.id ? " best-selected" : "");
+        btnW.className = "btn-choice" + (testState.sjtWorstChoice === opt.id ? " worst-selected" : "");
+      });
+
+      // Validar si ambas están elegidas
+      document.getElementById("sjtNextBtn").disabled = !(testState.sjtBestChoice && testState.sjtWorstChoice);
+    }
+
+    function nextSjt() {
+      // Calcular puntaje
+      const current = sjtDatabase[testState.sjtIndex];
+      const bestOpt = current.options.find(o => o.id === testState.sjtBestChoice);
+      const worstOpt = current.options.find(o => o.id === testState.sjtWorstChoice);
+
+      let points = 0;
+      if (bestOpt && bestOpt.isBest) points += 50;
+      if (worstOpt && worstOpt.isWorst) points += 50;
+      testState.sjtTotalScore += points;
+
+      testState.sjtIndex++;
+      if (testState.sjtIndex < sjtDatabase.length) {
+        loadSjtScenario();
+      } else {
+        advanceFromSjtToErrors();
+      }
+    }
+
+    function advanceFromSjtToErrors() {
+      stopTimer();
+      testState.currentStage = "errors";
+      showScreen("screenErrors");
+      
+      // Barajar con Fisher-Yates para evitar patrones repetidos y mejorar rejugabilidad
+      testState.errorQueue = shuffleArray(errorMasterBank);
+      testState.errorIndex = 0;
+      testState.errorHits = 0;
+      testState.errorFalseAlarms = 0;
+      testState.errorProcessed = 0;
+
+      startStageTimer(120, () => {
+        advanceFromErrorsToPallet();
+      });
+
+      renderErrorItem();
+    }
+
+    /* =========================================================
+       FASE 2: STREAM DINÁMICO DE CONTROL DE ERRORES (2 MINUTOS)
+       ========================================================= */
+    function renderErrorItem() {
+      if (testState.errorIndex >= testState.errorQueue.length) {
+        // Si termina los 30 antes de los 2 min, avanza
+        advanceFromErrorsToPallet();
+        return;
+      }
+
+      const item = testState.errorQueue[testState.errorIndex];
+      const total = testState.errorQueue.length;
+
+      document.getElementById("errorItemCounter").innerText = `Ítem ${testState.errorIndex + 1} de ${total}`;
+      document.getElementById("errorProgressFill").style.width = `${((testState.errorIndex) / total) * 100}%`;
+
+      // Factura
+      document.getElementById("specInvSku").innerText = item.sku;
+      document.getElementById("specInvDesc").innerText = item.desc;
+      document.getElementById("specInvQty").innerText = item.invQty + " cajas";
+      document.getElementById("specInvLot").innerText = item.invLot;
+
+      // Físico descargado (con o sin error generado)
+      document.getElementById("specPhysSku").innerText = item.invSkuPhys || item.sku;
+      document.getElementById("specPhysDesc").innerText = item.desc;
+      document.getElementById("specPhysQty").innerText = item.physQty + " cajas";
+      document.getElementById("specPhysLot").innerText = item.physLot;
+    }
+
+    function submitErrorChoice(userSaysMatch) {
+      if (testState.currentStage !== "errors") return;
+      const currentItem = testState.errorQueue[testState.errorIndex];
+
+      testState.errorProcessed++;
+      const isActualMatch = currentItem.match;
+
+      if (userSaysMatch === isActualMatch) {
+        // Acierto (Verdadero Positivo o Verdadero Negativo)
+        testState.errorHits++;
+      } else {
+        // Falso Positivo o Falsa Alarma (Penalizado)
+        testState.errorFalseAlarms++;
+      }
+
+      // Actualizar ribbon
+      document.getElementById("statProcessed").innerText = testState.errorProcessed;
+      document.getElementById("statHits").innerText = testState.errorHits;
+      document.getElementById("statFalse").innerText = testState.errorFalseAlarms;
+
+      testState.errorIndex++;
+      renderErrorItem();
+    }
+
+    function advanceFromErrorsToPallet() {
+      stopTimer();
+      testState.currentStage = "pallet";
+      showScreen("screenPallet");
+
+      setupPalletSimulation();
+
+      startStageTimer(120, () => {
+        advanceFromPalletToStory();
+      });
+    }
+
+    /* =========================================================
+       FASE 3: CHECK YOUR PALLET (GRID CON ACCESIBILIDAD ARIA)
+       ========================================================= */
+    function setupPalletSimulation() {
+      testState.palletSelectedIds.clear();
+      document.getElementById("palletSelectedCount").innerText = "0";
+
+      // Sembrar 3 anomalías fijas y 9 cajas normales barajadas
+      const hazards = shuffleArray(palletHazardPool).slice(0, 3);
+      const normals = shuffleArray(palletNormalPool).slice(0, 9).map(title => ({
+        title: title,
+        isHazard: false,
+        desc: "Producto en óptimo estado y estiba segura"
+      }));
+
+      testState.palletItems = shuffleArray([...hazards, ...normals]);
+
+      const grid = document.getElementById("palletLayout");
+      grid.innerHTML = "";
+
+      testState.palletItems.forEach((item, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "pallet-btn";
+        btn.id = `pallet_box_${idx}`;
+        btn.setAttribute("role", "checkbox");
+        btn.setAttribute("aria-checked", "false");
+        btn.setAttribute("aria-label", `Caja ${idx + 1}: ${item.title}`);
+        btn.innerText = item.title;
+
+        btn.onclick = () => togglePalletSelection(idx);
+        grid.appendChild(btn);
+      });
+    }
+
+    function togglePalletSelection(idx) {
+      const btn = document.getElementById(`pallet_box_${idx}`);
+      if (testState.palletSelectedIds.has(idx)) {
+        testState.palletSelectedIds.delete(idx);
+        btn.classList.remove("selected-hazard");
+        btn.setAttribute("aria-checked", "false");
+      } else {
+        testState.palletSelectedIds.add(idx);
+        btn.classList.add("selected-hazard");
+        btn.setAttribute("aria-checked", "true");
+      }
+      document.getElementById("palletSelectedCount").innerText = testState.palletSelectedIds.size;
+    }
+
+    function finishPalletManual() {
+      advanceFromPalletToStory();
+    }
+
+    function advanceFromPalletToStory() {
+      stopTimer();
+      testState.currentStage = "story";
+      showScreen("screenStory");
+
+      startStageTimer(360, () => {
+        advanceFromStoryToApproach();
+      });
+
+      renderStoryQuestion();
+    }
+
+    /* =========================================================
+       FASE 4: TELL US YOUR STORY
+       ========================================================= */
+    function renderStoryQuestion() {
+      testState.storySelectedOpt = null;
+      document.getElementById("storyNextBtn").disabled = true;
+
+      const current = randomizedStoryQuestions[testState.storyIndex];
+      document.getElementById("storyCounter").innerText = `Pregunta ${testState.storyIndex + 1} de ${randomizedStoryQuestions.length}`;
+      document.getElementById("storyQuestionText").innerText = current.q;
+
+      const list = document.getElementById("storyOptionList");
+      list.innerHTML = "";
+
+      current.options.forEach((opt, idx) => {
+        const card = document.createElement("div");
+        card.className = "opt-card";
+        card.setAttribute("role", "radio");
+        card.setAttribute("aria-checked", "false");
+        card.tabIndex = 0;
+        card.innerHTML = `
+          <input type="radio" name="story_radio" id="st_opt_${idx}" value="${idx}">
+          <label for="st_opt_${idx}" style="cursor: pointer; width: 100%; font-size: 0.92rem;">${opt.text}</label>
+        `;
+
+        card.onclick = () => {
+          document.querySelectorAll(".opt-card").forEach(c => {
+            c.classList.remove("active");
+            c.setAttribute("aria-checked", "false");
+          });
+          card.classList.add("active");
+          card.setAttribute("aria-checked", "true");
+          card.querySelector("input").checked = true;
+          testState.storySelectedOpt = opt;
+          document.getElementById("storyNextBtn").disabled = false;
+        };
+
+        list.appendChild(card);
+      });
+    }
+
+    function nextStory() {
+      if (!testState.storySelectedOpt) return;
+      testState.storyScore += testState.storySelectedOpt.score;
+      testState.storyIndex++;
+
+      if (testState.storyIndex < randomizedStoryQuestions.length) {
+        renderStoryQuestion();
+      } else {
+        advanceFromStoryToApproach();
+      }
+    }
+
+    function advanceFromStoryToApproach() {
+      stopTimer();
+      testState.currentStage = "approach";
+      showScreen("screenApproach");
+
+      startStageTimer(840, () => {
+        generateFinalDashboard();
+      });
+
+      renderApproachPair();
+    }
+
+    /* =========================================================
+       FASE 5: DESCRIBE YOUR APPROACH (IPSATIVO FORZADO)
+       ========================================================= */
+    function renderApproachPair() {
+      testState.approachSelectedChoice = null;
+      document.getElementById("approachConfirmBtn").disabled = true;
+
+      const current = randomizedApproachPairs[testState.approachIndex];
+      document.getElementById("approachCounter").innerText = `Par ${testState.approachIndex + 1} de ${randomizedApproachPairs.length}`;
+
+      const btnA = document.getElementById("pairBtnA");
+      const btnB = document.getElementById("pairBtnB");
+
+      btnA.className = "pair-choice-btn";
+      btnB.className = "pair-choice-btn";
+
+      btnA.innerText = current.a;
+      btnB.innerText = current.b;
+    }
+
+    function selectApproachPair(choice) {
+      testState.approachSelectedChoice = choice;
+      const btnA = document.getElementById("pairBtnA");
+      const btnB = document.getElementById("pairBtnB");
+
+      btnA.classList.remove("selected");
+      btnB.classList.remove("selected");
+
+      if (choice === "A") btnA.classList.add("selected");
+      if (choice === "B") btnB.classList.add("selected");
+
+      document.getElementById("approachConfirmBtn").disabled = false;
+    }
+
+    function confirmApproachPair() {
+      const current = approachPairs[testState.approachIndex];
+      testState.approachTraits.push(testState.approachSelectedChoice === "A" ? current.traitA : current.traitB);
+
+      testState.approachIndex++;
+      if (testState.approachIndex < randomizedApproachPairs.length) {
+        renderApproachPair();
+      } else {
+        stopTimer();
+        generateFinalDashboard();
+      }
+    }
+
+    /* =========================================================
+       6. ALGORITMO DE PUNTUACIÓN Y REPORTE INTEGRAL
+       ========================================================= */
+    function generateFinalDashboard() {
+      testState.currentStage = "results";
+      showScreen("screenResults");
+
+      // 1. SJT
+      const sjtPct = Math.round(testState.sjtTotalScore / sjtDatabase.length);
+
+      // 2. Control de Errores con Puntuación Penalizada
+      // Fórmula: (Aciertos * 10 - Falsas Alarmas * 15) normalizado a los ítems procesados
+      let rawErrorScore = 0;
+      if (testState.errorProcessed > 0) {
+        const netHits = Math.max(0, (testState.errorHits * 10) - (testState.errorFalseAlarms * 15));
+        const maxPossible = testState.errorProcessed * 10;
+        rawErrorScore = Math.round((netHits / maxPossible) * 100);
+      }
+      const errorPct = Math.max(0, Math.min(100, rawErrorScore));
+
+      // 3. Pallet con Puntuación Penalizada
+      let palletCorrectHits = 0;
+      let palletFalsePositives = 0;
+      let totalActualHazards = 0;
+
+      testState.palletItems.forEach((item, idx) => {
+        if (item.isHazard) totalActualHazards++;
+        const marked = testState.palletSelectedIds.has(idx);
+        if (item.isHazard && marked) palletCorrectHits++;
+        if (!item.isHazard && marked) palletFalsePositives++;
+      });
+
+      let rawPallet = 0;
+      if (totalActualHazards > 0) {
+        const hitScore = (palletCorrectHits / totalActualHazards) * 100;
+        const penalty = palletFalsePositives * 20; // -20% por cada caja sana marcada erróneamente
+        rawPallet = Math.max(0, Math.round(hitScore - penalty));
+      }
+      const palletPct = rawPallet;
+
+      // 4. Seguridad (Safety) calculada transversalmente
+      let safetyScore = 60;
+      if (testState.approachTraits.includes("safety")) safetyScore += 25;
+      if (testState.approachTraits.includes("unsafe")) safetyScore -= 40;
+      if (sjtPct >= 80) safetyScore += 15;
+      const safetyPct = Math.max(0, Math.min(100, safetyScore));
+
+      // 5. Autonomía
+      const autonomyPct = Math.round(testState.storyScore / randomizedStoryQuestions.length);
+
+      // 6. Integridad (Descuento por cambios de ventana)
+      const integrityPenalty = Math.min(60, testState.tabSwitches * 15);
+      const integrityScore = Math.max(0, 100 - integrityPenalty);
+
+      // Puntuación Global Ponderada (con descuento de integridad)
+      const weighted = (sjtPct * 0.25) + (errorPct * 0.25) + (palletPct * 0.20) + (safetyPct * 0.15) + (autonomyPct * 0.15);
+      const finalGlobalScore = Math.max(0, Math.round(weighted - (integrityPenalty * 0.2)));
+
+      // Render Visual
+      document.getElementById("finalScoreDisplay").innerText = `${finalGlobalScore}%`;
+      document.getElementById("integrityDisplay").innerText = `${integrityScore}%`;
+
+      const badge = document.getElementById("statusBadge");
+      if (finalGlobalScore >= 82 && integrityScore >= 80) {
+        badge.innerText = "PERFIL ALTAMENTE RECOMENDADO";
+        badge.style.background = "var(--success-bg)";
+        badge.style.color = "#0f5132";
+      } else if (finalGlobalScore >= 68) {
+        badge.innerText = "CANDIDATA APTO CON OBSERVACIONES";
+        badge.style.background = "var(--warning-bg)";
+        badge.style.color = "#664d03";
+      } else {
+        badge.innerText = "PERFIL EN RIESGO DE FILTRADO";
+        badge.style.background = "var(--danger-bg)";
+        badge.style.color = "#842029";
+      }
+
+      setBar("meterSjt", "txtSjt", sjtPct);
+      setBar("meterErrors", "txtErrors", errorPct);
+      setBar("meterPallet", "txtPallet", palletPct);
+      setBar("meterSafety", "txtSafety", safetyPct);
+      setBar("meterAutonomy", "txtAutonomy", autonomyPct);
+
+      // Render Feedback
+      renderQualitativeReport(sjtPct, errorPct, palletPct, safetyPct, autonomyPct, integrityScore);
+    }
+
+    function setBar(meterId, txtId, val) {
+      document.getElementById(meterId).style.width = `${val}%`;
+      document.getElementById(txtId).innerText = `${val}%`;
+    }
+
+    function renderQualitativeReport(sjt, err, pal, saf, aut, intg) {
+      const container = document.getElementById("qualitativeReport");
+      container.innerHTML = "";
+
+      // Anti-cheat alert
+      if (intg < 100) {
+        container.innerHTML += `
+          <div class="alert-box alert-danger">
+            <strong>⚠️ Registro de Foco e Integridad (${testState.tabSwitches} salidas de ventana):</strong>
+            En HireVue, abrir pestañas adicionales o perder el foco del navegador se registra en el log del reclutador. Para el examen real, Jazmín debe desactivar notificaciones de WhatsApp/redes y no tocar el teclado fuera del examen.
+          </div>`;
+      } else {
+        container.innerHTML += `
+          <div class="alert-box alert-success">
+            <strong>✓ Integridad y Foco Impecable (100%):</strong> No se detectó ninguna salida de pantalla. El examinador de Swire Coca-Cola valorará la concentración plena durante la sesión.
+          </div>`;
+      }
+
+      // Check for Errors & Pallet
+      if (err >= 80 && pal >= 75) {
+        container.innerHTML += `
+          <div class="alert-box alert-success">
+            <strong>✓ Agudeza Visual y Precisión Bajo Presión:</strong> Jazmín demostró gran capacidad de discriminación al no caer en trampas de falsos positivos. Su relación entre velocidad de procesamiento y exactitud de inventario está en el percentil superior para merchandisers.
+          </div>`;
+      } else {
+        container.innerHTML += `
+          <div class="alert-box alert-warning">
+            <strong>⚠️ Atención al Efecto de Penalización por Cliceo:</strong> En las secciones de 2 minutos (Error & Pallet), hacer clic por adivinar resta más puntos que dejar un ítem dudoso sin marcar. En la prueba real, debe priorizar la certeza antes de confirmar.
+          </div>`;
+      }
+
+      // Seguridad y SJT
+      if (saf >= 80) {
+        container.innerHTML += `
+          <div class="alert-box alert-success">
+            <strong>✓ Cultura Ergonómica 'Safety-First':</strong> Priorizó la técnica de levantamiento, la seguridad en pasillos y el reporte protocolar. Swire Coca-Cola considera este indicador indispensable para evitar reclamos por accidentes laborales.
+          </div>`;
+      } else {
+        container.innerHTML += `
+          <div class="alert-box alert-danger">
+            <strong>⚠️ Recordatorio Crítico de Seguridad:</strong> Alguna de sus decisiones favoreció la prisa o la sobrecarga física para ahorrar tiempo. En la evaluación real, ante cualquier disyuntiva entre rapidez y seguridad física, la respuesta correcta es **siempre la seguridad**.
+          </div>`;
+      }
+    }
+  </script>
+</body>
+</html>
