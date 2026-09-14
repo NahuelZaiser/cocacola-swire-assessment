@@ -13,7 +13,7 @@ export function Header({ timerSeconds, timerActive }: HeaderProps) {
           <div className="flex items-center min-w-0">
             <div className="flex items-center justify-center min-w-0">
               <img
-                src="/cocacola-transparent.png"
+                src="./cocacola-transparent.png"
                 alt="Coca-Cola"
                 className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto max-w-[320px] object-contain select-none drop-shadow-sm"
               />
