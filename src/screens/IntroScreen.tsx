@@ -18,20 +18,20 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
     <div className="min-h-screen bg-transparent">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-red-100 shadow-sm mb-6">
-            <ShieldCheck className="w-4 h-4 text-[#E61B2B]" />
-            <span className="text-xs font-bold text-[#E61B2B] uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-red-300/30 bg-[#111827]/80 shadow-[0_0_30px_rgba(230,27,43,0.14)] mb-6 backdrop-blur-sm">
+            <ShieldCheck className="w-4 h-4 text-[#FCA5A5]" />
+            <span className="text-xs font-bold text-[#FECACA] uppercase tracking-wider">
               Sitio: swirecocacola.hirevue-app.com
             </span>
           </div>
-          <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-500">
+          <div className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-slate-300">
             Entidad: Swire Coca-Cola | Coca-Cola
           </div>
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.05em] text-slate-900 mb-4 leading-none">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-[-0.05em] text-white mb-4 leading-none">
             Evaluación de
-            <span className="block text-[#E61B2B] mt-2">idoneidad operativa</span>
+            <span className="block text-[#FCA5A5] mt-2">idoneidad operativa</span>
           </h1>
-          <p className="text-base sm:text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
             Esta evaluación forma parte del proceso de selección para roles operativos dentro de la red de
             distribución de Swire Coca-Cola. Tiene como objetivo medir su criterio de decisión, precisión en la
             revisión de inventario, capacidad de gestión bajo presión operativa y alineación con los estándares de
@@ -39,9 +39,9 @@ export function IntroScreen({ onStart }: IntroScreenProps) {
           </p>
         </div>
 
-        <div className="surface-card p-6 sm:p-8 mb-6 bg-gradient-to-br from-white via-red-50/30 to-white">
-          <h2 className="text-lg font-extrabold text-slate-900 mb-5 flex items-center gap-2">
-            <ClipboardCheck className="w-5 h-5 text-[#E61B2B]" />
+        <div className="surface-card p-6 sm:p-8 mb-6 border border-white/10 bg-gradient-to-br from-[#111827] via-[#0f172a] to-[#0b1220] shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
+          <h2 className="text-lg font-extrabold text-white mb-5 flex items-center gap-2">
+            <ClipboardCheck className="w-5 h-5 text-[#FCA5A5]" />
             Módulos de la evaluación
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

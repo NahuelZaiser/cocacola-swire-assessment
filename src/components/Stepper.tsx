@@ -21,7 +21,7 @@ export function Stepper({ current }: StepperProps) {
   const currentIdx = STEP_ORDER.indexOf(current);
 
   return (
-    <div className="bg-white/90 backdrop-blur-md border-b border-slate-200/90 shadow-[0_1px_0_rgba(15,23,42,0.02)]">
+    <div className="border-b border-white/10 bg-[#090909]/85 backdrop-blur-md shadow-[0_1px_0_rgba(255,255,255,0.06)]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex items-center justify-between gap-2 sm:gap-3">
           {STEPS.map((step, idx) => {
@@ -33,16 +33,16 @@ export function Stepper({ current }: StepperProps) {
                   <div
                     className={`
                       flex items-center justify-center w-9 h-9 rounded-full border-2 font-bold text-sm transition-all duration-200
-                      ${isCompleted ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' : ''}
-                      ${isActive ? 'bg-[#FEF2F2] border-[#E61B2B] text-[#E61B2B] shadow-[0_0_0_4px_rgba(230,27,43,0.08)] scale-[1.03]' : ''}
-                      ${!isCompleted && !isActive ? 'bg-slate-50 border-slate-200 text-slate-400' : ''}
+                      ${isCompleted ? 'bg-emerald-500 border-emerald-400 text-white shadow-lg shadow-emerald-500/20' : ''}
+                      ${isActive ? 'bg-[#1f1113] border-[#E61B2B] text-[#FECACA] shadow-[0_0_0_4px_rgba(230,27,43,0.14)] scale-[1.03]' : ''}
+                      ${!isCompleted && !isActive ? 'bg-white/5 border-white/10 text-slate-400' : ''}
                     `}
                   >
                     {isCompleted ? <Check className="w-5 h-5" /> : idx + 1}
                   </div>
                   <span
                     className={`text-[10px] sm:text-xs font-semibold truncate ${
-                      isActive ? 'text-[#E61B2B]' : isCompleted ? 'text-emerald-600' : 'text-slate-400'
+                      isActive ? 'text-[#FCA5A5]' : isCompleted ? 'text-emerald-400' : 'text-slate-400'
                     }`}
                   >
                     {step.shortLabel}
@@ -51,7 +51,7 @@ export function Stepper({ current }: StepperProps) {
                 {idx < STEPS.length - 1 && (
                   <div
                     className={`flex-1 h-0.5 mx-2 sm:mx-3 mb-5 rounded-full transition-all duration-300 ${
-                      idx < currentIdx ? 'bg-emerald-500' : 'bg-slate-200'
+                      idx < currentIdx ? 'bg-emerald-500' : 'bg-white/10'
                     }`}
                   />
                 )}
