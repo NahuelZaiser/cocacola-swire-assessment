@@ -38,8 +38,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050505] text-slate-900">
-      <div className="bg-[radial-gradient(circle_at_top,_rgba(230,27,43,0.2),transparent_28%),linear-gradient(180deg,#050505_0%,#111827_100%)]">
+    <div className="min-h-screen bg-[#f8f5f3] text-slate-900">
+      <div className="bg-[radial-gradient(circle_at_top,_rgba(230,27,43,0.12),transparent_28%),linear-gradient(180deg,#fff8f7_0%,#f5f3f0_100%)]">
         <Header timerSeconds={ass.timeRemaining} timerActive={ass.timerActive} />
         <Stepper current={ass.stage} />
 
